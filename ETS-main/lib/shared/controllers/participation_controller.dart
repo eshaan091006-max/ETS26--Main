@@ -1,0 +1,274 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print
+
+import 'package:flutter/widgets.dart';
+import 'package:malhar_ets/shared/controllers/event_controller.dart';
+import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
+import 'package:malhar_ets/shared/models/event.dart';
+import 'package:malhar_ets/shared/models/participation.dart';
+import 'package:malhar_ets/utils/app_feedback.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:async';
+
+class ParticipationController {
+  static final SupabaseClient _client = Supabase.instance.client;
+
+  // Singleton instance
+  static final ParticipationController _instance =
+      ParticipationController._internal();
+
+  RealtimeChannel? _participationChannel;
+
+  factory ParticipationController() {
+    return _instance;
+  }
+
+  ParticipationController._internal();
+
+  final List<Participation> _participations = [];
+
+  List<Participation> get participations => _participations;
+
+  Future<void> loadParticipations() async {
+    try {
+      final response = await _client
+          .from('participations')
+          .select("*")
+          .order('participation_id', ascending: true);
+      _participations.clear();
+      if (response.isNotEmpty) {
+        _participations.addAll(
+          response.map((json) => Participation.fromJson(json)).toList(),
+        );
+      }
+    } catch (e) {
+      print("Error loading participations: $e");
+    } finally {
+      PageRefreshController.triggerRefresh();
+    }
+  }
+
+  void subscribeToParticipations(GlobalKey<NavigatorState> key) {
+    Timer? debounceTimer;
+    _participationChannel = _client.channel('public:participations');
+
+    _participationChannel!
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'participations',
+          callback: (payload) {
+            //Cancelling the previous Timer if any such that code block actually dismisses
+            // the previous update instead of js stacking it inside a timer.
+
+            debounceTimer?.cancel();
+
+            // Setting timer for multiple calls in few seconds and then updating all at once.
+            debounceTimer = Timer(const Duration(seconds: 2), () async {
+              await loadParticipations();
+              print('Participation table updated!');
+              PageRefreshController.triggerRefresh();
+              // AppFeedback.notifyUpdate(
+              //   key.currentContext!,
+              //   'Participation data has been updated!',
+              // );
+            });
+          },
+        )
+        .subscribe();
+  }
+
+  void printAll() {
+    for (Participation p in _participations) {
+      print(
+        "${p.participationId} ${p.contingentId} ${p.eventId} ${p.marksScored}",
+      );
+    }
+  }
+
+  Future<ParticipationController> initializeParticipations() async {
+    await loadParticipations();
+    return this;
+  }
+
+  Participation? getParticipationById(int id) {
+    try {
+      return _participations.firstWhere((p) => p.participationId == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // 🔹 CREATE
+  Future<bool> createParticipation(
+    BuildContext context,
+    Participation participation,
+  ) async {
+    try {
+      final response =
+          await _client
+              .from('participations')
+              .insert(participation.toInsertJson())
+              .select();
+
+      print(response);
+
+      if (response.isNotEmpty) {
+        AppFeedback.showSuccess(context, "Participation created successfully.");
+        await loadParticipations();
+        return true;
+      } else {
+        AppFeedback.showError(context, "Failed to create participation.");
+        return false;
+      }
+    } catch (e) {
+      AppFeedback.showError(context, "Error creating participation: $e");
+      return false;
+    }
+  }
+
+  Future<bool> createMultipleParticipation(
+    BuildContext context,
+    List<Participation> participations,
+  ) async {
+    try {
+      final response =
+          await _client
+              .from('participations')
+              .insert(participations.map((p) => p.toInsertJson()).toList())
+              .select();
+
+      print(response);
+
+      if (response.isNotEmpty) {
+        AppFeedback.showSuccess(
+          context,
+          "Participations created successfully.",
+        );
+        await loadParticipations();
+        return true;
+      } else {
+        AppFeedback.showError(context, "Failed to create participations.");
+        return false;
+      }
+    } catch (e) {
+      AppFeedback.showError(context, "Error creating participations: $e");
+      return false;
+    }
+  }
+
+  // 🔹 UPDATE
+  Future<bool> updateParticipation(
+    BuildContext context,
+    Participation participation, {
+    bool displayMsg = true,
+  }) async {
+    try {
+      final response =
+          await _client
+              .from('participations')
+              .update(participation.toJson())
+              .eq('participation_id', participation.participationId)
+              .select();
+
+      if (response.isNotEmpty) {
+        if (displayMsg) {
+          AppFeedback.showSuccess(
+            context,
+            "Participation updated successfully.",
+          );
+        }
+        await loadParticipations();
+        return true;
+      } else {
+        if (displayMsg) {
+          AppFeedback.showError(context, "Failed to update participation.");
+        }
+        return false;
+      }
+    } catch (e) {
+      if (displayMsg) {
+        AppFeedback.showError(context, "Error updating participation: $e");
+      }
+      return false;
+    }
+  }
+
+  Future<bool> updateMultipleParticipationSameEvent(
+    BuildContext context,
+    List<Participation> participations,
+    Event event,
+  ) async {
+    try {
+      int maxMarks = participations.first.marksScored;
+      for (Participation p in participations) {
+        maxMarks = (p.marksScored > maxMarks) ? p.marksScored : maxMarks;
+        await updateParticipation(context, p, displayMsg: false);
+      }
+      event.highestMarks = maxMarks;
+      await EventController().updateEvent(context, event);
+      AppFeedback.showSuccess(context, "Participation updated successfully.");
+      return true;
+    } catch (e) {
+      AppFeedback.showError(context, "Error updating participations: $e");
+      return false;
+    }
+  }
+
+  // Future<bool> updateMultipleParticipationSameContingent(
+  //   BuildContext context,
+  //   List<Participation> participations,
+  //   Event event,
+  //   Contingent contingent,
+  // ) async {
+  //   try {
+  //     int maxMarks = participations.first.marksScored;
+  //     for (Participation p in participations) {
+  //       if (p.marksScored > event.highestMarks && p.marksScored > maxMarks) {
+  //         maxMarks = p.marksScored;
+  //       }
+  //       updateParticipation(context, p, displayMsg: false);
+  //     }
+  //     AppFeedback.showSuccess(context, "Participation updated successfully.");
+
+  //     if (event.highestMarks < maxMarks) {
+  //       event.highestMarks = maxMarks;
+  //       EventController().updateEvent(context, event);
+  //     }
+  //     return true;
+  //   } catch (e) {
+  //     AppFeedback.showError(context, "Error updating participations: $e");
+  //     return false;
+  //   }
+  // }
+
+  // 🔹 DELETE
+  Future<bool> deleteParticipation(
+    BuildContext context,
+    Participation participation,
+  ) async {
+    try {
+      final response =
+          await _client
+              .from('participations')
+              .delete()
+              .eq('participation_id', participation.participationId)
+              .select();
+
+      if (response.isNotEmpty) {
+        AppFeedback.showSuccess(context, "Participation deleted successfully.");
+        await loadParticipations();
+        await EventController().updateHighestMarks(
+          context,
+          participation.eventId,
+        );
+        return true;
+      } else {
+        AppFeedback.showError(context, "Failed to delete participation.");
+        return false;
+      }
+    } catch (e) {
+      AppFeedback.showError(context, "Error deleting participation: $e");
+      return false;
+    }
+  }
+}

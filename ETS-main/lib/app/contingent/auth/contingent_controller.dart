@@ -1,0 +1,31 @@
+import 'package:malhar_ets/shared/models/contingent.dart';
+import 'package:malhar_ets/utils/hash_util.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class ContingentController {
+  static Future<Map<String, dynamic>> loginAsContingent(
+    String username,
+    String password,
+  ) async {
+    try {
+      final hashedPassword = HashUtil.hashPassword(password);
+      final response = await Supabase.instance.client
+          .from('contingents')
+          .select()
+          .eq('contingent_code', username)
+          .eq('password', hashedPassword);
+
+      if (response.isNotEmpty) {
+        return {
+          "success": true,
+          "message": 'Contingent Login Successful for $username!',
+          "contingent": Contingent.fromJson(response.first),
+        };
+      } else {
+        return {"success": false, "message": "Invalid Contingent Credentials!"};
+      }
+    } catch (e) {
+      return {"success": false, "message": "Login failed: $e"};
+    }
+  }
+}

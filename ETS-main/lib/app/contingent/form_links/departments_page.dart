@@ -1,0 +1,71 @@
+import 'package:flutter/material.dart';
+import 'package:malhar_ets/app/contingent/cards/department_card.dart';
+import 'package:malhar_ets/app/contingent/form_links/events_page.dart';
+import 'package:malhar_ets/shared/controllers/department_controller.dart';
+import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
+import 'package:malhar_ets/shared/models/contingent.dart';
+import 'package:malhar_ets/shared/models/department.dart';
+import 'package:vertical_card_pager/vertical_card_pager.dart';
+
+class DepartmentsPage extends StatefulWidget {
+  final Contingent contingent;
+
+  const DepartmentsPage({required this.contingent, super.key});
+  @override
+  _DepartmentsPageState createState() => _DepartmentsPageState();
+}
+
+class _DepartmentsPageState extends State<DepartmentsPage> {
+  double _currentPage = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: PageRefreshController.refreshNotifier,
+      builder: (context, _, __) {
+        final List<Department> departments = DepartmentController().departments;
+
+        if (departments.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        return SafeArea(
+          child: Container(
+            padding: const EdgeInsets.only(bottom: 75), // Clears the floating action button and bottom navigation bar
+            child: VerticalCardPager(
+              initialPage: 0,
+              titles: departments.map((d) => "").toList(),
+              images: departments.asMap().entries.map((entry) {
+                int index = entry.key;
+                Department d = entry.value;
+                bool isFocused = (index - _currentPage).abs() <= 0.5;
+                return DepartmentCard(d: d, isFocused: isFocused);
+              }).toList(),
+              onPageChanged: (page) {
+                if (page != null) {
+                  setState(() {
+                    _currentPage = page;
+                  });
+                }
+              },
+              onSelectedItem: (index) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => EventsPage(
+                          department: departments[index],
+                          contingent: widget.contingent,
+                        ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
