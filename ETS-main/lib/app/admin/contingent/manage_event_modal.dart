@@ -79,7 +79,7 @@ class AddEventSheetState extends State<AddEventSheet> {
     _selected = List<bool>.filled(widget.events.length, false);
   }
 
-  void _handleSubmit() {
+  void _handleSubmit() async {
     final selectedIndexes = <int>[];
     for (int i = 0; i < _selected.length; i++) {
       if (_selected[i]) selectedIndexes.add(i);
@@ -95,11 +95,23 @@ class AddEventSheetState extends State<AddEventSheet> {
             )
             .toList();
             
-    ParticipationController().createMultipleParticipation(
+    if (participations.isEmpty) {
+      AppFeedback.showError(context, "Please select at least one event.");
+      return;
+    }
+
+    AppFeedback.showLoading(context, message: "Adding events...");
+    final success = await ParticipationController().createMultipleParticipation(
       context,
       participations,
     );
-    Navigator.pop(context); // Close the modal
+    
+    if (mounted) {
+      AppFeedback.hideLoading(context);
+      if (success) {
+        Navigator.pop(context); // Close the modal
+      }
+    }
   }
 
   @override

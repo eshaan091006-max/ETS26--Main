@@ -42,4 +42,7 @@ app.*.map.json
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
-/android/app/releasehou
+/android/app/release
+
+# Supabase credentials
+lib/constants/supabase/credentials.dart

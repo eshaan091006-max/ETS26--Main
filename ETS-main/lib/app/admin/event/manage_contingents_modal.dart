@@ -87,7 +87,7 @@ class AddContingentSheetState extends State<AddContingentSheet> {
     _selected = List<bool>.filled(widget.contingents.length, false);
   }
 
-  void _handleSubmit() {
+  void _handleSubmit() async {
     final selectedIndexes = <int>[];
     for (int i = 0; i < _selected.length; i++) {
       if (_selected[i]) selectedIndexes.add(i);
@@ -103,13 +103,26 @@ class AddContingentSheetState extends State<AddContingentSheet> {
               ),
             )
             .toList();
+            
+    if (participations.isEmpty) {
+      AppFeedback.showError(context, "Please select at least one contingent.");
+      return;
+    }
+
     // Do something with selectedIndexes
     print("Selected Contingent indexes: $selectedIndexes");
-    ParticipationController().createMultipleParticipation(
+    AppFeedback.showLoading(context, message: "Adding contingents...");
+    final success = await ParticipationController().createMultipleParticipation(
       context,
       participations,
     );
-    Navigator.pop(context); // Close the modal
+    
+    if (mounted) {
+      AppFeedback.hideLoading(context);
+      if (success) {
+        Navigator.pop(context); // Close the modal
+      }
+    }
   }
 
   @override
