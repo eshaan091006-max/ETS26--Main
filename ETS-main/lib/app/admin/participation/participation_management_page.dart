@@ -35,6 +35,14 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
   List<String> departments = ['All'];
   List<String> contingents = ['All'];
 
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -123,6 +131,17 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
           grouped.putIfAbsent(p.contingentId, () => []).add(p);
         }
 
+        // Apply search filter on grouped contingents
+        final query = _searchController.text.trim().toLowerCase();
+        final Map<int, List<Participation>> searchedGrouped = {};
+        for (var entry in grouped.entries) {
+          final contingent = _contingentController.getContingentById(entry.key);
+          final code = contingent?.contingentCode.toLowerCase() ?? '';
+          if (code.contains(query)) {
+            searchedGrouped[entry.key] = entry.value;
+          }
+        }
+
         return Column(
           children: [
             Container(
@@ -146,7 +165,49 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
                 ],
               ),
             ),
-            (grouped.isEmpty)
+
+            /// Search Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: TextField(
+                controller: _searchController,
+                style: const TextStyle(color: AppColors.textWhite),
+                decoration: InputDecoration(
+                  hintText: 'Search by Contingent Code...',
+                  hintStyle: const TextStyle(color: AppColors.textSecondary),
+                  prefixIcon: const Icon(Icons.search, color: AppColors.primary),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, color: AppColors.primary),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {});
+                          },
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: AppColors.secondary,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onChanged: (text) {
+                  setState(() {});
+                },
+              ),
+            ),
+
+            (searchedGrouped.isEmpty)
                 ? Expanded(
                     child: Center(
                       child: Text(
@@ -160,11 +221,11 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
                   )
                 : Expanded(
                     child: ListView.builder(
-                      itemCount: grouped.length,
+                      itemCount: searchedGrouped.length,
                       itemBuilder: (context, index) {
-                        final contingentId = grouped.keys.elementAt(index);
+                        final contingentId = searchedGrouped.keys.elementAt(index);
                         final List<Participation> contingentParticipations =
-                            grouped[contingentId]!;
+                            searchedGrouped[contingentId]!;
 
                         final Contingent contingent =
                             _contingentController.getContingentById(

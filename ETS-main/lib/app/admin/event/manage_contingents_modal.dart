@@ -79,26 +79,22 @@ class AddContingentSheet extends StatefulWidget {
 }
 
 class AddContingentSheetState extends State<AddContingentSheet> {
-  late List<bool> _selected;
+  final Set<int> _selectedIds = {};
+  final TextEditingController _searchController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _selected = List<bool>.filled(widget.contingents.length, false);
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _handleSubmit() async {
-    final selectedIndexes = <int>[];
-    for (int i = 0; i < _selected.length; i++) {
-      if (_selected[i]) selectedIndexes.add(i);
-      // print(widget.contingents[i].contingentId);
-    }
     List<Participation> participations =
-        selectedIndexes
+        _selectedIds
             .map(
-              (i) => Participation(
+              (id) => Participation(
                 participationId: -1,
-                contingentId: widget.contingents[i].contingentId,
+                contingentId: id,
                 eventId: widget.event.eventId,
               ),
             )
@@ -109,8 +105,7 @@ class AddContingentSheetState extends State<AddContingentSheet> {
       return;
     }
 
-    // Do something with selectedIndexes
-    print("Selected Contingent indexes: $selectedIndexes");
+    print("Selected Contingent IDs: $_selectedIds");
     AppFeedback.showLoading(context, message: "Adding contingents...");
     final success = await ParticipationController().createMultipleParticipation(
       context,
@@ -127,44 +122,101 @@ class AddContingentSheetState extends State<AddContingentSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final query = _searchController.text.trim().toLowerCase();
+    final filteredContingents = widget.contingents.where((c) {
+      return c.contingentCode.toLowerCase().contains(query);
+    }).toList();
+
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
         children: [
           Text("Select Contingents", style: titleTextStyle),
           const SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
-              controller: ScrollController(),
-              itemCount: widget.contingents.length,
-              itemBuilder: (context, index) {
-                Contingent c = widget.contingents[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: ListTile(
-                          shape: OutlineInputBorder(),
-                          tileColor: AppColors.tertiary,
-                          titleTextStyle: textStyle,
-                          title: Text("${c.contingentCode} "),
-                          trailing: Checkbox(
-                            value: _selected[index],
-                            onChanged: (value) {
-                              setState(() {
-                                _selected[index] = value ?? false;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+
+          /// Search Bar
+          TextField(
+            controller: _searchController,
+            style: const TextStyle(color: AppColors.textWhite),
+            decoration: InputDecoration(
+              hintText: 'Search Contingents...',
+              hintStyle: const TextStyle(color: AppColors.textSecondary),
+              prefixIcon: const Icon(Icons.search, color: AppColors.primary),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear, color: AppColors.primary),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {});
+                      },
+                    )
+                  : null,
+              filled: true,
+              fillColor: AppColors.secondary,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+              ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
             ),
+            onChanged: (text) {
+              setState(() {});
+            },
+          ),
+          const SizedBox(height: 10),
+
+          Expanded(
+            child: filteredContingents.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No contingents found',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                  )
+                : ListView.builder(
+                    controller: ScrollController(),
+                    itemCount: filteredContingents.length,
+                    itemBuilder: (context, index) {
+                      Contingent c = filteredContingents[index];
+                      final isChecked = _selectedIds.contains(c.contingentId);
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: ListTile(
+                                shape: const OutlineInputBorder(),
+                                tileColor: AppColors.tertiary,
+                                titleTextStyle: textStyle,
+                                title: Text("${c.contingentCode} "),
+                                trailing: Checkbox(
+                                  value: isChecked,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      if (value == true) {
+                                        _selectedIds.add(c.contingentId);
+                                      } else {
+                                        _selectedIds.remove(c.contingentId);
+                                      }
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
           ),
           const SizedBox(height: 10),
           Row(
