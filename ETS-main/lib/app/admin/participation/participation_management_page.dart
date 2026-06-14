@@ -168,7 +168,7 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
                 ? const Expanded(
                     child: EmptyStateWidget(
                       title: 'No Participations Found',
-                      subtitle: 'Try checking your search query or dropdown filters.',
+                      subtitle: '',
                       icon: Icons.how_to_vote,
                     ),
                   )
