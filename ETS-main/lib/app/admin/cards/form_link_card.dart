@@ -22,9 +22,10 @@ class _FormLinkCardState extends State<FormLinkCard> {
     final List<String> visibleToCodes = [];
 
     for (int id in widget.formLink.visibleTo) {
-      visibleToCodes.add(
-        ContingentController().getContingentById(id)!.contingentCode,
-      );
+      final contingent = ContingentController().getContingentById(id);
+      if (contingent != null) {
+        visibleToCodes.add(contingent.contingentCode);
+      }
     }
     final visibleToString =
         visibleToCodes.isEmpty ? "None" : visibleToCodes.join(', ');
