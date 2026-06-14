@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:malhar_ets/app/admin/modals/confirm_deletion.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
@@ -105,56 +106,59 @@ class ContingentCard extends StatelessWidget {
                           bool dialogObscure = true;
                           showDialog(
                             context: context,
-                            builder: (ctx) => StatefulBuilder(
-                              builder: (ctx, setDialogState) => AlertDialog(
-                                title: const Text('Reset Password'),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text('Are you sure you want to reset the password for ${contingent.contingentCode}?'),
-                                    const SizedBox(height: 12),
-                                    TextField(
-                                      controller: resetPasswordController,
-                                      obscureText: dialogObscure,
-                                      decoration: InputDecoration(
-                                        labelText: 'New Password (leave blank for code)',
-                                        border: const OutlineInputBorder(),
-                                        suffixIcon: IconButton(
-                                          icon: Icon(
-                                            dialogObscure ? Icons.visibility_off : Icons.visibility,
+                            builder: (ctx) => BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                              child: StatefulBuilder(
+                                builder: (ctx, setDialogState) => AlertDialog(
+                                  title: const Text('Reset Password'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text('Are you sure you want to reset the password for ${contingent.contingentCode}?'),
+                                      const SizedBox(height: 12),
+                                      TextField(
+                                        controller: resetPasswordController,
+                                        obscureText: dialogObscure,
+                                        decoration: InputDecoration(
+                                          labelText: 'New Password (leave blank for code)',
+                                          border: const OutlineInputBorder(),
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                              dialogObscure ? Icons.visibility_off : Icons.visibility,
+                                            ),
+                                            onPressed: () => setDialogState(() => dialogObscure = !dialogObscure),
                                           ),
-                                          onPressed: () => setDialogState(() => dialogObscure = !dialogObscure),
                                         ),
                                       ),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        Navigator.pop(ctx);
+                                        final newPassPlain = resetPasswordController.text.isNotEmpty 
+                                            ? resetPasswordController.text.trim() 
+                                            : contingent.contingentCode;
+                                        final newPasswordHash = HashUtil.hashPassword(newPassPlain);
+                                        
+                                        final updatedContingent = Contingent(
+                                          contingentId: contingent.contingentId,
+                                          contingentCode: contingent.contingentCode,
+                                          password: newPasswordHash,
+                                        );
+                                        final success = await ContingentController().updateContingent(context, updatedContingent);
+                                        if (success) {
+                                          AppFeedback.showSuccess(context, 'Password reset successfully. Please send the new password to the contingent.');
+                                        }
+                                      },
+                                      child: const Text('Reset'),
                                     ),
                                   ],
                                 ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(ctx),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      Navigator.pop(ctx);
-                                      final newPassPlain = resetPasswordController.text.isNotEmpty 
-                                          ? resetPasswordController.text.trim() 
-                                          : contingent.contingentCode;
-                                      final newPasswordHash = HashUtil.hashPassword(newPassPlain);
-                                      
-                                      final updatedContingent = Contingent(
-                                        contingentId: contingent.contingentId,
-                                        contingentCode: contingent.contingentCode,
-                                        password: newPasswordHash,
-                                      );
-                                      final success = await ContingentController().updateContingent(context, updatedContingent);
-                                      if (success) {
-                                        AppFeedback.showSuccess(context, 'Password reset successfully. Please send the new password to the contingent.');
-                                      }
-                                    },
-                                    child: const Text('Reset'),
-                                  ),
-                                ],
                               ),
                             ),
                           );

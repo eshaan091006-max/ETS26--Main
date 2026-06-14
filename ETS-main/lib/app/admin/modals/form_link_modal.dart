@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/helpers/form_helpers.dart';
@@ -32,196 +33,199 @@ Future<void> showFormLinkModal(
     await showDialog(
       context: context,
       builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            final query = searchController.text.trim().toLowerCase();
-            final filteredContingents = allContingents.where((c) {
-              return c.contingentCode.toLowerCase().contains(query);
-            }).toList();
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              final query = searchController.text.trim().toLowerCase();
+              final filteredContingents = allContingents.where((c) {
+                return c.contingentCode.toLowerCase().contains(query);
+              }).toList();
 
-            final allFilteredSelected = filteredContingents.isNotEmpty &&
-                filteredContingents.every((c) => selectedContingents.contains(c.contingentId));
+              final allFilteredSelected = filteredContingents.isNotEmpty &&
+                  filteredContingents.every((c) => selectedContingents.contains(c.contingentId));
 
-            return AlertDialog(
-              title: Text(isUpdating ? 'Update Form Link' : 'Add Form Link'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    buildTextField(labelController, 'Form Label'),
-                    const SizedBox(height: 12),
-                    buildTextField(linkController, 'Form URL'),
-                    const SizedBox(height: 12),
+              return AlertDialog(
+                title: Text(isUpdating ? 'Update Form Link' : 'Add Form Link'),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      buildTextField(labelController, 'Form Label'),
+                      const SizedBox(height: 12),
+                      buildTextField(linkController, 'Form URL'),
+                      const SizedBox(height: 12),
 
-                    /// Contingent Checkboxes Section
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Visible To:',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
+                      /// Contingent Checkboxes Section
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Visible To:',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 6),
+                      const SizedBox(height: 6),
 
-                    /// Search field
-                    TextField(
-                      controller: searchController,
-                      style: const TextStyle(color: AppColors.textWhite),
-                      decoration: InputDecoration(
-                        hintText: 'Search Contingents...',
-                        hintStyle: const TextStyle(color: AppColors.textSecondary),
-                        prefixIcon: const Icon(Icons.search, color: AppColors.primary),
-                        suffixIcon: searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear, color: AppColors.primary),
-                                onPressed: () {
-                                  searchController.clear();
-                                  setState(() {});
-                                },
-                              )
-                            : null,
-                        filled: true,
-                        fillColor: AppColors.secondary,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppColors.border),
+                      /// Search field
+                      TextField(
+                        controller: searchController,
+                        style: const TextStyle(color: AppColors.textWhite),
+                        decoration: InputDecoration(
+                          hintText: 'Search Contingents...',
+                          hintStyle: const TextStyle(color: AppColors.textSecondary),
+                          prefixIcon: const Icon(Icons.search, color: AppColors.primary),
+                          suffixIcon: searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, color: AppColors.primary),
+                                  onPressed: () {
+                                    searchController.clear();
+                                    setState(() {});
+                                  },
+                                )
+                              : null,
+                          filled: true,
+                          fillColor: AppColors.secondary,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppColors.border),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                        onChanged: (text) {
+                          setState(() {});
+                        },
                       ),
-                      onChanged: (text) {
-                        setState(() {});
-                      },
-                    ),
-                    const SizedBox(height: 6),
+                      const SizedBox(height: 6),
 
-                    // Select All / Deselect All
-                    CheckboxListTile(
-                      dense: true,
-                      title: Text(
-                        allFilteredSelected
-                            ? (query.isEmpty ? 'Deselect All' : 'Deselect All Filtered')
-                            : (query.isEmpty ? 'Select All' : 'Select All Filtered'),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                      // Select All / Deselect All
+                      CheckboxListTile(
+                        dense: true,
+                        title: Text(
+                          allFilteredSelected
+                              ? (query.isEmpty ? 'Deselect All' : 'Deselect All Filtered')
+                              : (query.isEmpty ? 'Select All' : 'Select All Filtered'),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      value: allFilteredSelected,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          if (value == true) {
-                            selectedContingents.addAll(filteredContingents.map((c) => c.contingentId));
-                          } else {
-                            for (var c in filteredContingents) {
-                              selectedContingents.remove(c.contingentId);
+                        value: allFilteredSelected,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value == true) {
+                              selectedContingents.addAll(filteredContingents.map((c) => c.contingentId));
+                            } else {
+                              for (var c in filteredContingents) {
+                                selectedContingents.remove(c.contingentId);
+                              }
                             }
-                          }
-                        });
-                      },
-                      controlAffinity: ListTileControlAffinity.leading,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-
-                    // Individual Contingent Checkboxes (Height constrained container)
-                    Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.border),
-                        borderRadius: BorderRadius.circular(8),
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
                       ),
-                      child: filteredContingents.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'No contingents found',
-                                style: TextStyle(color: AppColors.textSecondary),
+
+                      // Individual Contingent Checkboxes (Height constrained container)
+                      Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.border),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: filteredContingents.isEmpty
+                            ? const Center(
+                                child: Text(
+                                  'No contingents found',
+                                  style: TextStyle(color: AppColors.textSecondary),
+                                ),
+                              )
+                            : Scrollbar(
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: filteredContingents.length,
+                                  itemBuilder: (context, index) {
+                                    final contingent = filteredContingents[index];
+                                    final isChecked = selectedContingents.contains(
+                                      contingent.contingentId,
+                                    );
+                                    return CheckboxListTile(
+                                      dense: true,
+                                      title: Text(
+                                        contingent.contingentCode,
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                      value: isChecked,
+                                      onChanged: (bool? val) {
+                                        setState(() {
+                                          if (val == true) {
+                                            selectedContingents.add(contingent.contingentId);
+                                          } else {
+                                            selectedContingents.remove(contingent.contingentId);
+                                          }
+                                        });
+                                      },
+                                      controlAffinity: ListTileControlAffinity.leading,
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                                    );
+                                  },
+                                ),
                               ),
-                            )
-                          : Scrollbar(
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: filteredContingents.length,
-                                itemBuilder: (context, index) {
-                                  final contingent = filteredContingents[index];
-                                  final isChecked = selectedContingents.contains(
-                                    contingent.contingentId,
-                                  );
-                                  return CheckboxListTile(
-                                    dense: true,
-                                    title: Text(
-                                      contingent.contingentCode,
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                    value: isChecked,
-                                    onChanged: (bool? val) {
-                                      setState(() {
-                                        if (val == true) {
-                                          selectedContingents.add(contingent.contingentId);
-                                        } else {
-                                          selectedContingents.remove(contingent.contingentId);
-                                        }
-                                      });
-                                    },
-                                    controlAffinity: ListTileControlAffinity.leading,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                                  );
-                                },
-                              ),
-                            ),
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (labelController.text.trim().isEmpty ||
-                        linkController.text.trim().isEmpty) {
-                      AppFeedback.showError(
-                        context,
-                        'Label and URL are required',
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (labelController.text.trim().isEmpty ||
+                          linkController.text.trim().isEmpty) {
+                        AppFeedback.showError(
+                          context,
+                          'Label and URL are required',
+                        );
+                        return;
+                      }
+
+                      AppFeedback.showLoading(context, message: isUpdating ? 'Updating...' : 'Adding...');
+                      final modalContext = context;
+
+                      await onSubmit(
+                        FormLink(
+                          id: formLink?.id ?? -1,
+                          eventId: eventId,
+                          label: labelController.text.trim(),
+                          link: linkController.text.trim(),
+                          visibleTo: selectedContingents.toList(),
+                        ),
                       );
-                      return;
-                    }
-
-                    AppFeedback.showLoading(context, message: isUpdating ? 'Updating...' : 'Adding...');
-                    final modalContext = context;
-
-                    await onSubmit(
-                      FormLink(
-                        id: formLink?.id ?? -1,
-                        eventId: eventId,
-                        label: labelController.text.trim(),
-                        link: linkController.text.trim(),
-                        visibleTo: selectedContingents.toList(),
-                      ),
-                    );
-                    
-                    if (modalContext.mounted) {
-                      AppFeedback.hideLoading(modalContext);
-                      Navigator.pop(modalContext);
-                    }
-                  },
-                  child: Text(isUpdating ? 'Update' : 'Add'),
-                ),
-              ],
-            );
-          },
+                      
+                      if (modalContext.mounted) {
+                        AppFeedback.hideLoading(modalContext);
+                        Navigator.pop(modalContext);
+                      }
+                    },
+                    child: Text(isUpdating ? 'Update' : 'Add'),
+                  ),
+                ],
+              );
+            },
+          ),
         );
       },
     );

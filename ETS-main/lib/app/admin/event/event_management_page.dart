@@ -8,6 +8,8 @@ import 'package:malhar_ets/shared/controllers/event_controller.dart';
 import 'package:malhar_ets/shared/controllers/form_link_controller.dart';
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
+import 'package:malhar_ets/helpers/animated_card_wrapper.dart';
+import 'package:malhar_ets/helpers/empty_state_widget.dart';
 
 class EventManagementPage extends StatefulWidget {
   const EventManagementPage({super.key});
@@ -95,37 +97,46 @@ class _EventManagementPageState extends State<EventManagementPage> {
             valueListenable: PageRefreshController.refreshNotifier,
             builder: (_, __, ___) {
               final events = filteredEvents();
-              return ListView.builder(
-                itemCount: events.length,
-                itemBuilder: (context, index) {
-                  final event = events[index];
-                  return GestureDetector(
-                    onDoubleTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder:
-                              (_) => ContingentsParticipatedPage(event: event),
-                        ),
-                      );
-                    },
-                    child: EventCard(
-                      event: event,
-                      onEdit:
-                          () => showEventModal(
-                            context,
-                            event: event,
-                            onSubmit: (updatedEvent, links) async {
-                              await EventController().updateEvent(context, updatedEvent);
-                              await FormLinkController().syncFormLinks(context, updatedEvent.eventId, links);
+              return events.isEmpty
+                  ? const EmptyStateWidget(
+                      title: 'No Events Found',
+                      subtitle: 'Try adjusting your type or department filters.',
+                      icon: Icons.event_busy,
+                    )
+                  : ListView.builder(
+                      itemCount: events.length,
+                      itemBuilder: (context, index) {
+                        final event = events[index];
+                        return AnimatedCardWrapper(
+                          key: ValueKey(event.eventId),
+                          child: GestureDetector(
+                            onDoubleTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => ContingentsParticipatedPage(event: event),
+                                ),
+                              );
                             },
+                            child: EventCard(
+                              event: event,
+                              onEdit:
+                                  () => showEventModal(
+                                    context,
+                                    event: event,
+                                    onSubmit: (updatedEvent, links) async {
+                                      await EventController().updateEvent(context, updatedEvent);
+                                      await FormLinkController().syncFormLinks(context, updatedEvent.eventId, links);
+                                    },
+                                  ),
+                              onDelete: () {
+                                EventController().deleteEvent(context, event.eventId);
+                              },
+                            ),
                           ),
-                      onDelete: () {
-                        EventController().deleteEvent(context, event.eventId);
+                        );
                       },
-                    ),
-                  );
-                },
-              );
+                    );
             },
           ),
         ),

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:malhar_ets/app/admin/cards/grouped_participation_card.dart';
-import 'package:malhar_ets/app/admin/contingent/manage_event_modal.dart';
-import 'package:malhar_ets/app/admin/modals/confirm_deletion.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/helpers/widgets.dart';
 import 'package:malhar_ets/shared/controllers/contingent_controller.dart';
 import 'package:malhar_ets/shared/controllers/department_controller.dart';
 import 'package:malhar_ets/shared/controllers/event_controller.dart';
-import 'package:malhar_ets/shared/controllers/participation_controller.dart';
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
+import 'package:malhar_ets/shared/controllers/participation_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/shared/models/participation.dart';
-import 'package:malhar_ets/utils/app_feedback.dart';
+import 'package:malhar_ets/app/admin/contingent/manage_event_modal.dart';
+import 'package:malhar_ets/app/admin/modals/confirm_deletion.dart';
+import 'package:malhar_ets/helpers/animated_card_wrapper.dart';
+import 'package:malhar_ets/helpers/empty_state_widget.dart';
+import 'package:malhar_ets/helpers/glowing_search_field.dart';
 
 class ParticipationManagementPage extends StatefulWidget {
   const ParticipationManagementPage({super.key});
@@ -23,11 +25,9 @@ class ParticipationManagementPage extends StatefulWidget {
 }
 
 class _EventManagementPageState extends State<ParticipationManagementPage> {
-  final EventController _eventController = EventController();
   final ContingentController _contingentController = ContingentController();
-  late ParticipationController _participationController;
-
-  bool isLoading = true;
+  final ParticipationController _participationController =
+      ParticipationController();
 
   String selectedDept = 'All';
   String selectedContingent = 'All';
@@ -46,88 +46,70 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppFeedback.showLoading(context);
-    });
-    _initializeParticipations();
+    _initFilters();
   }
 
-  Future<void> _initializeParticipations() async {
-    _participationController =
-        await ParticipationController().initializeParticipations();
-
-    if (!mounted) return;
-
-    // Prepare departments and contingent codes from data
-    final eventIds =
+  void _initFilters() {
+    final deptSet =
         _participationController.participations
-            .map((p) => p.eventId)
-            .toSet()
-            .toList();
-    final contingentIds =
+            .map((p) {
+              final event = EventController().getEventById(p.eventId);
+              if (event == null) return '';
+              return DepartmentController()
+                      .getDepartmentById(event.departmentId.toInt())
+                      ?.code ??
+                  '';
+            })
+            .where((code) => code.isNotEmpty)
+            .toSet();
+    departments = ['All', ...deptSet];
+
+    final contSet =
         _participationController.participations
-            .map((p) => p.contingentId)
-            .toSet()
-            .toList();
-
-    departments = [
-      'All',
-      ...{
-        for (var id in eventIds)
-          DepartmentController()
-              .getDepartmentById(
-                _eventController.getEventById(id)!.departmentId,
-              )
-              ?.code,
-      }.whereType<String>(),
-    ];
-
-    contingents = [
-      'All',
-      ...{
-        for (var id in contingentIds)
-          _contingentController.getContingentById(id)?.contingentCode,
-      }.whereType<String>(),
-    ];
-
-    AppFeedback.hideLoading(context);
-    setState(() => isLoading = false);
+            .map(
+              (p) =>
+                  _contingentController
+                      .getContingentById(p.contingentId)
+                      ?.contingentCode ??
+                  '',
+            )
+            .where((code) => code.isNotEmpty)
+            .toSet();
+    contingents = ['All', ...contSet];
   }
 
   List<Participation> getFilteredParticipations() {
     return _participationController.participations.where((p) {
-      final event = _eventController.getEventById(p.eventId);
-      final contingent = _contingentController.getContingentById(
-        p.contingentId,
-      );
+      final contingent =
+          _contingentController.getContingentById(p.contingentId);
+      final event = EventController().getEventById(p.eventId);
+      if (event == null || contingent == null) return false;
 
-      if (contingent == null) return false;
+      final deptCode =
+          DepartmentController()
+              .getDepartmentById(event.departmentId.toInt())
+              ?.code;
 
-      final dept = DepartmentController().getDepartmentById(event?.departmentId ?? -1);
-      if (dept == null) return false;
-      final deptCode = dept.code;
-
-      final matchesDept = selectedDept == 'All' || selectedDept == deptCode;
-      final matchesContingent =
+      final deptMatch = selectedDept == 'All' || deptCode == selectedDept;
+      final contMatch =
           selectedContingent == 'All' ||
-          selectedContingent == contingent.contingentCode;
+          contingent.contingentCode == selectedContingent;
 
-      return matchesDept && matchesContingent;
+      return deptMatch && contMatch;
     }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) return const Center(child: CircularProgressIndicator());
-
     return ValueListenableBuilder<bool>(
       valueListenable: PageRefreshController.refreshNotifier,
-      builder: (context, refresh, child) {
-        final filteredParticipations = getFilteredParticipations();
+      builder: (context, value, child) {
+        _initFilters();
+        final filtered = getFilteredParticipations();
 
-        // Group filtered participations by contingentId
+        // Group by contingent
         final Map<int, List<Participation>> grouped = {};
-        for (var p in filteredParticipations) {
+        for (var p in filtered) {
           grouped.putIfAbsent(p.contingentId, () => []).add(p);
         }
 
@@ -169,54 +151,25 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
             /// Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: TextField(
+              child: GlowingSearchField(
                 controller: _searchController,
-                style: const TextStyle(color: AppColors.textWhite),
-                decoration: InputDecoration(
-                  hintText: 'Search by Contingent Code...',
-                  hintStyle: const TextStyle(color: AppColors.textSecondary),
-                  prefixIcon: const Icon(Icons.search, color: AppColors.primary),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, color: AppColors.primary),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {});
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: AppColors.secondary,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                ),
+                hintText: 'Search by Contingent Code...',
                 onChanged: (text) {
+                  setState(() {});
+                },
+                onClear: () {
+                  _searchController.clear();
                   setState(() {});
                 },
               ),
             ),
 
             (searchedGrouped.isEmpty)
-                ? Expanded(
-                    child: Center(
-                      child: Text(
-                        'No Participations Found!',
-                        style: GoogleFonts.poppins(
-                          fontSize: 22,
-                          color: AppColors.primary,
-                        ),
-                      ),
+                ? const Expanded(
+                    child: EmptyStateWidget(
+                      title: 'No Participations Found',
+                      subtitle: 'Try checking your search query or dropdown filters.',
+                      icon: Icons.how_to_vote,
                     ),
                   )
                 : Expanded(
@@ -233,21 +186,24 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
                             ) ??
                             Contingent();
 
-                        return GroupedParticipationCard(
-                          contingent: contingent,
-                          participations: contingentParticipations,
-                          onEdit: (Participation p) {
-                            showUpdateEventBottomSheet(context, [p], contingent);
-                          },
-                          onDelete: (Participation p) {
-                            confirmDeletionModal(
-                              context,
-                              'Participation',
-                              onSubmit: () {
-                                _participationController.deleteParticipation(context, p);
-                              },
-                            );
-                          },
+                        return AnimatedCardWrapper(
+                          key: ValueKey(contingentId),
+                          child: GroupedParticipationCard(
+                            contingent: contingent,
+                            participations: contingentParticipations,
+                            onEdit: (Participation p) {
+                              showUpdateEventBottomSheet(context, [p], contingent);
+                            },
+                            onDelete: (Participation p) {
+                              confirmDeletionModal(
+                                context,
+                                'Participation',
+                                onSubmit: () {
+                                  _participationController.deleteParticipation(context, p);
+                                },
+                              );
+                            },
+                          ),
                         );
                       },
                     ),

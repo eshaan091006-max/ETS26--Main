@@ -8,6 +8,9 @@ import 'package:malhar_ets/shared/controllers/contingent_controller.dart';
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
+import 'package:malhar_ets/helpers/animated_card_wrapper.dart';
+import 'package:malhar_ets/helpers/empty_state_widget.dart';
+import 'package:malhar_ets/helpers/glowing_search_field.dart';
 
 class ContingentManagementPage extends StatefulWidget {
   const ContingentManagementPage({super.key});
@@ -50,39 +53,14 @@ class _ContingentManagementPageState extends State<ContingentManagementPage> {
             /// Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: TextField(
+              child: GlowingSearchField(
                 controller: _searchController,
-                style: const TextStyle(color: AppColors.textWhite),
-                decoration: InputDecoration(
-                  hintText: 'Search Contingents...',
-                  hintStyle: const TextStyle(color: AppColors.textSecondary),
-                  prefixIcon: const Icon(Icons.search, color: AppColors.primary),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, color: AppColors.primary),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {});
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: AppColors.secondary,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                ),
+                hintText: 'Search Contingents...',
                 onChanged: (text) {
+                  setState(() {});
+                },
+                onClear: () {
+                  _searchController.clear();
                   setState(() {});
                 },
               ),
@@ -91,14 +69,10 @@ class _ContingentManagementPageState extends State<ContingentManagementPage> {
             /// Contingents List
             Expanded(
               child: filteredContingents.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No Contingents Found!',
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          color: AppColors.primary,
-                        ),
-                      ),
+                  ? const EmptyStateWidget(
+                      title: 'No Contingents Found',
+                      subtitle: 'We couldn\'t find any contingents matching your search.',
+                      icon: Icons.group_off,
                     )
                   : ListView.builder(
                       itemCount: filteredContingents.length,
@@ -112,28 +86,31 @@ class _ContingentManagementPageState extends State<ContingentManagementPage> {
                           ),
                         );
 
-                        return GestureDetector(
-                          onDoubleTap: navigateToEvents,
-                          child: ContingentCard(
-                            contingent: contingent,
-                            onEdit:
-                                () => showContingentModal(
+                        return AnimatedCardWrapper(
+                          key: ValueKey(contingent.contingentId),
+                          child: GestureDetector(
+                            onDoubleTap: navigateToEvents,
+                            child: ContingentCard(
+                              contingent: contingent,
+                              onEdit:
+                                  () => showContingentModal(
+                                    context,
+                                    contingent: contingent,
+                                    onSubmit: (contingent) async {
+                                      await ContingentController().updateContingent(
+                                        context,
+                                        contingent,
+                                      );
+                                    },
+                                  ),
+                              onDelete: () async {
+                                await ContingentController().deleteContingent(
                                   context,
-                                  contingent: contingent,
-                                  onSubmit: (contingent) async {
-                                    await ContingentController().updateContingent(
-                                      context,
-                                      contingent,
-                                    );
-                                  },
-                                ),
-                            onDelete: () async {
-                              await ContingentController().deleteContingent(
-                                context,
-                                contingent.contingentId,
-                              );
-                            },
-                            onViewEvents: navigateToEvents,
+                                  contingent.contingentId,
+                                );
+                              },
+                              onViewEvents: navigateToEvents,
+                            ),
                           ),
                         );
                       },

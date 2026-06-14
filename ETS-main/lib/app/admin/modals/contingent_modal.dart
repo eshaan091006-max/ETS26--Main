@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
@@ -19,77 +20,80 @@ Future<void> showContingentModal(
   await showDialog(
     context: context,
     builder: (ctx) {
-      return StatefulBuilder(
-        builder:
-            (context, setState) => AlertDialog(
-              title: Text(isUpdating ? 'Update Contingent' : 'Add Contingent'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: codeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Contingent Code',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (!isUpdating)
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: StatefulBuilder(
+          builder:
+              (context, setState) => AlertDialog(
+                title: Text(isUpdating ? 'Update Contingent' : 'Add Contingent'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     TextField(
-                      controller: passwordController,
-                      obscureText: obscure,
-                      decoration: InputDecoration(
-                        labelText: 'Initial Password (leave blank for code)',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            obscure ? Icons.visibility_off : Icons.visibility,
+                      controller: codeController,
+                      decoration: const InputDecoration(
+                        labelText: 'Contingent Code',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    if (!isUpdating)
+                      TextField(
+                        controller: passwordController,
+                        obscureText: obscure,
+                        decoration: InputDecoration(
+                          labelText: 'Initial Password (leave blank for code)',
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              obscure ? Icons.visibility_off : Icons.visibility,
+                            ),
+                            onPressed: () => setState(() => obscure = !obscure),
                           ),
-                          onPressed: () => setState(() => obscure = !obscure),
                         ),
                       ),
-                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                   ElevatedButton(
+                    onPressed: () async {
+                      if (codeController.text.trim().isEmpty) {
+                        AppFeedback.showError(context, 'Please fill all fields');
+                        return;
+                      }
+  
+                      // For a new contingent, hash the provided password or code as default
+                      // If updating, preserve old password (unless admin resets it later)
+                      final newPassword = isUpdating
+                          ? contingent!.password
+                          : HashUtil.hashPassword(
+                              passwordController.text.isNotEmpty
+                                  ? passwordController.text.trim()
+                                  : codeController.text.trim(),
+                            );
+  
+                      AppFeedback.showLoading(context, message: isUpdating ? 'Updating...' : 'Adding...');
+                      final modalContext = context;
+                      await onSubmit(
+                        Contingent(
+                          contingentId: contingent?.contingentId ?? 0,
+                          contingentCode: codeController.text.trim(),
+                          password: newPassword,
+                        ),
+                      );
+                      
+                      if (modalContext.mounted) {
+                        AppFeedback.hideLoading(modalContext);
+                        Navigator.pop(modalContext);
+                      }
+                    },
+                    child: Text(isUpdating ? 'Update' : 'Add'),
+                  ),
                 ],
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
-                 ElevatedButton(
-                  onPressed: () async {
-                    if (codeController.text.trim().isEmpty) {
-                      AppFeedback.showError(context, 'Please fill all fields');
-                      return;
-                    }
-
-                    // For a new contingent, hash the provided password or code as default
-                    // If updating, preserve old password (unless admin resets it later)
-                    final newPassword = isUpdating
-                        ? contingent!.password
-                        : HashUtil.hashPassword(
-                            passwordController.text.isNotEmpty
-                                ? passwordController.text.trim()
-                                : codeController.text.trim(),
-                          );
-
-                    AppFeedback.showLoading(context, message: isUpdating ? 'Updating...' : 'Adding...');
-                    final modalContext = context;
-                    await onSubmit(
-                      Contingent(
-                        contingentId: contingent?.contingentId ?? 0,
-                        contingentCode: codeController.text.trim(),
-                        password: newPassword,
-                      ),
-                    );
-                    
-                    if (modalContext.mounted) {
-                      AppFeedback.hideLoading(modalContext);
-                      Navigator.pop(modalContext);
-                    }
-                  },
-                  child: Text(isUpdating ? 'Update' : 'Add'),
-                ),
-              ],
-            ),
+        ),
       );
     },
   );

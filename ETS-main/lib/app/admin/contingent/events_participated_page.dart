@@ -11,6 +11,8 @@ import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/models/participation.dart';
+import 'package:malhar_ets/helpers/animated_card_wrapper.dart';
+import 'package:malhar_ets/helpers/empty_state_widget.dart';
 
 class EventsParticipatedPage extends StatefulWidget {
   final Contingent contingent;
@@ -137,31 +139,40 @@ class _EventsParticipatedPageState extends State<EventsParticipatedPage> {
 
               // PARTICIPATION LIST
               Expanded(
-                child: ListView.builder(
-                  itemCount: filteredParticipations.length,
-                  itemBuilder: (context, index) {
-                    final p = filteredParticipations[index];
-                    final event = events.firstWhere((e) => e.eventId == p.eventId);
+                child: filteredParticipations.isEmpty
+                    ? const EmptyStateWidget(
+                        title: 'No Participations Yet',
+                        subtitle: 'This contingent has not been added to any events matching the filters.',
+                        icon: Icons.event_note,
+                      )
+                    : ListView.builder(
+                        itemCount: filteredParticipations.length,
+                        itemBuilder: (context, index) {
+                          final p = filteredParticipations[index];
+                          final event = events.firstWhere((e) => e.eventId == p.eventId);
 
-                    return ParticipationCard(
-                      contingent: widget.contingent,
-                      participation: p,
-                      event: event,
-                      onEdit: () {
-                        showUpdateEventBottomSheet(context, [p], widget.contingent);
-                      },
-                      onDelete: () {
-                        confirmDeletionModal(
-                          context,
-                          'Participation',
-                          onSubmit: () {
-                            _participationController.deleteParticipation(context, p);
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
+                          return AnimatedCardWrapper(
+                            key: ValueKey(p.participationId),
+                            child: ParticipationCard(
+                              contingent: widget.contingent,
+                              participation: p,
+                              event: event,
+                              onEdit: () {
+                                showUpdateEventBottomSheet(context, [p], widget.contingent);
+                              },
+                              onDelete: () {
+                                confirmDeletionModal(
+                                  context,
+                                  'Participation',
+                                  onSubmit: () {
+                                    _participationController.deleteParticipation(context, p);
+                                  },
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
               ),
             ],
           ),
