@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:malhar_ets/app/admin/cards/participation_card.dart';
+import 'package:malhar_ets/app/admin/cards/grouped_participation_card.dart';
+import 'package:malhar_ets/app/admin/contingent/manage_event_modal.dart';
+import 'package:malhar_ets/app/admin/modals/confirm_deletion.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/helpers/widgets.dart';
 import 'package:malhar_ets/shared/controllers/contingent_controller.dart';
 import 'package:malhar_ets/shared/controllers/department_controller.dart';
 import 'package:malhar_ets/shared/controllers/event_controller.dart';
 import 'package:malhar_ets/shared/controllers/participation_controller.dart';
+import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
-import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/models/participation.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 
@@ -108,66 +110,88 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
   Widget build(BuildContext context) {
     if (isLoading) return const Center(child: CircularProgressIndicator());
 
-    final filteredParticipations = getFilteredParticipations();
+    return ValueListenableBuilder<bool>(
+      valueListenable: PageRefreshController.refreshNotifier,
+      builder: (context, refresh, child) {
+        final filteredParticipations = getFilteredParticipations();
 
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          color: Colors.black12,
-          child: Row(
-            children: [
-              buildDropdown(
-                label: 'Deptartment',
-                value: selectedDept,
-                options: departments,
-                onChanged: (val) => setState(() => selectedDept = val!),
-              ),
-              const SizedBox(width: 12),
-              buildDropdown(
-                label: 'Contingent',
-                value: selectedContingent,
-                options: contingents,
-                onChanged: (val) => setState(() => selectedContingent = val!),
-              ),
-            ],
-          ),
-        ),
-        (filteredParticipations.isEmpty)
-            ? Text(
-              'No Participations Found!',
-              style: GoogleFonts.poppins(
-                fontSize: 22,
-                color: AppColors.primary,
-              ),
-            )
-            : Expanded(
-              child: ListView.builder(
-                itemCount: filteredParticipations.length,
-                itemBuilder: (context, index) {
-                  final Participation participation =
-                      filteredParticipations[index];
-                  final Event event =
-                      _eventController.getEventById(participation.eventId) ??
-                      Event(dateTime: DateTime.now());
+        // Group filtered participations by contingentId
+        final Map<int, List<Participation>> grouped = {};
+        for (var p in filteredParticipations) {
+          grouped.putIfAbsent(p.contingentId, () => []).add(p);
+        }
 
-                  final Contingent contingent =
-                      _contingentController.getContingentById(
-                        participation.contingentId,
-                      ) ??
-                      Contingent();
-
-                  return ParticipationCard(
-                    participation: participation,
-                    event: event,
-                    contingent: contingent,
-                    onEdit: () => {},
-                    onDelete: () => {},
-                  );
-                },
+        return Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              color: Colors.black12,
+              child: Row(
+                children: [
+                  buildDropdown(
+                    label: 'Deptartment',
+                    value: selectedDept,
+                    options: departments,
+                    onChanged: (val) => setState(() => selectedDept = val!),
+                  ),
+                  const SizedBox(width: 12),
+                  buildDropdown(
+                    label: 'Contingent',
+                    value: selectedContingent,
+                    options: contingents,
+                    onChanged: (val) => setState(() => selectedContingent = val!),
+                  ),
+                ],
               ),
             ),
-      ],
+            (grouped.isEmpty)
+                ? Expanded(
+                    child: Center(
+                      child: Text(
+                        'No Participations Found!',
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  )
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: grouped.length,
+                      itemBuilder: (context, index) {
+                        final contingentId = grouped.keys.elementAt(index);
+                        final List<Participation> contingentParticipations =
+                            grouped[contingentId]!;
+
+                        final Contingent contingent =
+                            _contingentController.getContingentById(
+                              contingentId,
+                            ) ??
+                            Contingent();
+
+                        return GroupedParticipationCard(
+                          contingent: contingent,
+                          participations: contingentParticipations,
+                          onEdit: (Participation p) {
+                            showUpdateEventBottomSheet(context, [p], contingent);
+                          },
+                          onDelete: (Participation p) {
+                            confirmDeletionModal(
+                              context,
+                              'Participation',
+                              onSubmit: () {
+                                _participationController.deleteParticipation(context, p);
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+          ],
+        );
+      },
     );
   }
 }
