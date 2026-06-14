@@ -93,6 +93,8 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
         p.contingentId,
       );
 
+      if (contingent == null) return false;
+
       final dept = DepartmentController().getDepartmentById(event?.departmentId ?? -1);
       if (dept == null) return false;
       final deptCode = dept.code;
@@ -100,7 +102,7 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
       final matchesDept = selectedDept == 'All' || selectedDept == deptCode;
       final matchesContingent =
           selectedContingent == 'All' ||
-          selectedContingent == contingent?.contingentCode;
+          selectedContingent == contingent.contingentCode;
 
       return matchesDept && matchesContingent;
     }).toList();

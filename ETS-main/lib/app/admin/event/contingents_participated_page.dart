@@ -35,17 +35,23 @@ class _ContingentsParticipatedPageState
   }
 
   loadData() {
-    participations =
+    final allParticipations =
         _participationController.participations
             .where((p) => p.eventId == widget.event.eventId)
             .toList();
 
-    List<int> contingentIds =
-        participations.map((p) => p.contingentId).toList();
-    contingents =
-        _contingentController.contingents
-            .where((c) => contingentIds.contains(c.contingentId))
-            .toList();
+    final contingentMap = {
+      for (var c in _contingentController.contingents) c.contingentId: c
+    };
+
+    participations = allParticipations
+        .where((p) => contingentMap.containsKey(p.contingentId))
+        .toList();
+
+    contingents = participations
+        .map((p) => contingentMap[p.contingentId]!)
+        .toSet()
+        .toList();
   }
 
   @override
