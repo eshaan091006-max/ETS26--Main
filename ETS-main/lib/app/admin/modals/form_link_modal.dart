@@ -145,7 +145,7 @@ Future<void> showFormLinkModal(
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (labelController.text.trim().isEmpty ||
                       linkController.text.trim().isEmpty) {
                     AppFeedback.showError(
@@ -155,7 +155,10 @@ Future<void> showFormLinkModal(
                     return;
                   }
 
-                  onSubmit(
+                  AppFeedback.showLoading(context, message: isUpdating ? 'Updating...' : 'Adding...');
+                  final modalContext = context;
+
+                  await onSubmit(
                     FormLink(
                       id: formLink?.id ?? -1,
                       eventId: eventId,
@@ -164,7 +167,11 @@ Future<void> showFormLinkModal(
                       visibleTo: selectedContingents.toList(),
                     ),
                   );
-                  Navigator.pop(context);
+                  
+                  if (modalContext.mounted) {
+                    AppFeedback.hideLoading(modalContext);
+                    Navigator.pop(modalContext);
+                  }
                 },
                 child: Text(isUpdating ? 'Update' : 'Add'),
               ),

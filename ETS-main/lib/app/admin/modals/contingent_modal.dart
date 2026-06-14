@@ -54,9 +54,9 @@ Future<void> showContingentModal(
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Cancel'),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (codeController.text.isEmpty) {
+                 ElevatedButton(
+                  onPressed: () async {
+                    if (codeController.text.trim().isEmpty) {
                       AppFeedback.showError(context, 'Please fill all fields');
                       return;
                     }
@@ -71,14 +71,20 @@ Future<void> showContingentModal(
                                 : codeController.text.trim(),
                           );
 
-                    onSubmit(
+                    AppFeedback.showLoading(context, message: isUpdating ? 'Updating...' : 'Adding...');
+                    final modalContext = context;
+                    await onSubmit(
                       Contingent(
                         contingentId: contingent?.contingentId ?? 0,
                         contingentCode: codeController.text.trim(),
                         password: newPassword,
                       ),
                     );
-                    Navigator.pop(context);
+                    
+                    if (modalContext.mounted) {
+                      AppFeedback.hideLoading(modalContext);
+                      Navigator.pop(modalContext);
+                    }
                   },
                   child: Text(isUpdating ? 'Update' : 'Add'),
                 ),

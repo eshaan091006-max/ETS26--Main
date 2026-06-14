@@ -164,34 +164,40 @@ class _ContingentPageState extends State<ProfilePage> {
                       /// Save Button
                       ElevatedButton(
                         onPressed: () async {
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                          }
-                          if (isPasswordValid()) {
-                            setState(() {
-                              code = codeController.text;
-                              // Do not store plain text password locally
-                            });
-                            Contingent c = widget.contingent;
-                            c.contingentCode = code;
-                            c.password = HashUtil.hashPassword(passwordController.text);
-                            bool result = await ContingentController()
-                                .updateContingent(context, c);
-
-                            (result)
-                                ? AppFeedback.showSuccess(
-                                  context,
-                                  "Password Changed Successfully!",
-                                )
-                                : AppFeedback.showError(
-                                  context,
-                                  "Error in Changing Password.",
-                                );
-                          } else {
+                          if (!isPasswordValid()) {
                             AppFeedback.showError(
                               context,
                               "Password Requirements not met.",
                             );
+                            return;
+                          }
+
+                          AppFeedback.showLoading(context, message: "Saving password...");
+                          final modalContext = context;
+                          
+                          Contingent c = widget.contingent;
+                          c.contingentCode = code;
+                          c.password = HashUtil.hashPassword(passwordController.text);
+                          bool result = await ContingentController()
+                              .updateContingent(modalContext, c);
+
+                          if (modalContext.mounted) {
+                            AppFeedback.hideLoading(modalContext);
+                            if (result) {
+                              setState(() {
+                                code = codeController.text;
+                              });
+                              AppFeedback.showSuccess(
+                                modalContext,
+                                "Password Changed Successfully!",
+                              );
+                              Navigator.pop(modalContext);
+                            } else {
+                              AppFeedback.showError(
+                                modalContext,
+                                "Error in Changing Password.",
+                              );
+                            }
                           }
                         },
                         child: const Text("Save"),

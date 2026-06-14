@@ -207,7 +207,7 @@ Future<void> showEventModal(
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (nameController.text.trim().isEmpty) {
                     AppFeedback.showError(context, 'Event name is required');
                     return;
@@ -228,7 +228,10 @@ Future<void> showEventModal(
                     }
                   }
 
-                  onSubmit(
+                  AppFeedback.showLoading(context, message: isUpdating ? 'Updating...' : 'Adding...');
+                  final modalContext = context;
+                  
+                  await onSubmit(
                     Event(
                       eventId: event?.eventId ?? 0,
                       eventName: nameController.text.trim(),
@@ -248,7 +251,10 @@ Future<void> showEventModal(
                     finalLinks,
                   );
 
-                  Navigator.pop(context);
+                  if (modalContext.mounted) {
+                    AppFeedback.hideLoading(modalContext);
+                    Navigator.pop(modalContext);
+                  }
                 },
                 child: Text(isUpdating ? 'Update' : 'Add'),
               ),
