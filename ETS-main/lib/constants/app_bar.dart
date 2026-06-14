@@ -6,16 +6,24 @@ import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 // import 'dart:io';
 // import 'package:image/image.dart' as img;
 
+import 'package:malhar_ets/utils/session_manager.dart';
+import 'package:malhar_ets/connector.dart';
+
 AppBar getAppBar(BuildContext context, bool isLoggedIn) {
   return AppBar(
-    leading: Padding(
-      padding: EdgeInsets.all(5),
-      child: Image.asset(
-        'assets/logo/malhar26.png',
-        fit: BoxFit.contain,
-        filterQuality: FilterQuality.high,
-      ),
-    ),
+    leading: (Navigator.canPop(context) && !isLoggedIn)
+        ? IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+            onPressed: () => Navigator.maybePop(context),
+          )
+        : Padding(
+            padding: const EdgeInsets.all(5),
+            child: Image.asset(
+              'assets/logo/malhar26.png',
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.high,
+            ),
+          ),
     title: Text(
       "Malhar 26",
       style: GoogleFonts.montserrat(
@@ -31,7 +39,7 @@ AppBar getAppBar(BuildContext context, bool isLoggedIn) {
         color: AppColors.primary,
         tooltip: 'Refresh Page',
         onPressed: PageRefreshController.triggerRefresh,
-        icon: Icon(Icons.restart_alt_sharp),
+        icon: const Icon(Icons.restart_alt_sharp),
       ),
       if (isLoggedIn)
         IconButton(
@@ -41,10 +49,18 @@ AppBar getAppBar(BuildContext context, bool isLoggedIn) {
               () => confirmDialog(
                 context,
                 'Confirm Logout',
-                Text('Are you sure you want to Logout?'),
-                onSubmit: () => Navigator.pop(context),
+                const Text('Are you sure you want to Logout?'),
+                onSubmit: () async {
+                  await SessionManager.clearSession();
+                  if (context.mounted) {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const Connector()),
+                      (route) => false,
+                    );
+                  }
+                },
               ),
-          icon: Icon(Icons.output, semanticLabel: 'Logout'),
+          icon: const Icon(Icons.output, semanticLabel: 'Logout'),
         ),
     ],
   );

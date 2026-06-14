@@ -5,12 +5,103 @@ import 'package:malhar_ets/app/contingent/login/login_page.dart';
 import 'package:malhar_ets/constants/app_bar.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/helpers/glass_container.dart';
+import 'package:malhar_ets/utils/session_manager.dart';
+import 'package:malhar_ets/app/admin/main.dart' as admin_main;
+import 'package:malhar_ets/app/contingent/main.dart' as contingent_main;
 
-class Connector extends StatelessWidget {
+class Connector extends StatefulWidget {
   const Connector({super.key});
 
   @override
+  State<Connector> createState() => _ConnectorState();
+}
+
+class _ConnectorState extends State<Connector> {
+  bool _checkingSession = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkActiveSession();
+  }
+
+  Future<void> _checkActiveSession() async {
+    final session = await SessionManager.getSession();
+    if (session != null) {
+      if (mounted) {
+        if (session['type'] == 'admin') {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => admin_main.Main(
+                isVolunteer: session['is_volunteer'],
+              ),
+            ),
+          );
+        } else if (session['type'] == 'contingent') {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => contingent_main.Main(
+                contingent: session['contingent'],
+              ),
+            ),
+          );
+        }
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _checkingSession = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_checkingSession) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.accent.withAlpha(80),
+                      blurRadius: 30,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/logo/malhar26.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Icon(
+                          Icons.flutter_dash,
+                          size: 100,
+                          color: AppColors.primary,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              const CircularProgressIndicator(color: AppColors.primary),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.secondary,
       appBar: getAppBar(context, false),
@@ -43,127 +134,127 @@ class Connector extends StatelessWidget {
                   );
                 },
                 child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Logo container with subtle glowing effect
-                  Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.accent.withAlpha(80),
-                          blurRadius: 30,
-                          spreadRadius: 5,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Logo container with subtle glowing effect
+                    Container(
+                      width: 200,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.accent.withAlpha(80),
+                            blurRadius: 30,
+                            spreadRadius: 5,
+                          ),
+                          BoxShadow(
+                            color: AppColors.primary.withAlpha(50),
+                            blurRadius: 50,
+                            spreadRadius: 10,
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/logo/malhar26.png',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            // Fallback if file doesn't exist yet
+                            return const Center(
+                              child: Icon(
+                                Icons.flutter_dash,
+                                size: 100,
+                                color: AppColors.primary,
+                              ),
+                            );
+                          },
                         ),
-                        BoxShadow(
-                          color: AppColors.primary.withAlpha(50),
-                          blurRadius: 50,
-                          spreadRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/logo/malhar26.png',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          // Fallback if file doesn't exist yet
-                          return Center(
-                            child: Icon(
-                              Icons.flutter_dash,
-                              size: 100,
-                              color: AppColors.primary,
-                            ),
-                          );
-                        },
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Title text
-                  Text(
-                    'Malhar 26',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2.0,
-                      color: Colors.white,
-                      shadows: [
-                        const Shadow(
-                          color: AppColors.accent,
-                          offset: Offset(2, 2),
-                          blurRadius: 4,
-                        ),
-                        const Shadow(
-                          color: AppColors.primary,
-                          offset: Offset(-2, -2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'EVENT TRACKING SYSTEM',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 4.0,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  // Portal Buttons
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 320),
-                    child: Column(
-                      children: [
-                        LiquidGlassContainer(
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const LoginPage()),
+                    const SizedBox(height: 24),
+                    // Title text
+                    Text(
+                      'Malhar 26',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 48,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.0,
+                        color: Colors.white,
+                        shadows: [
+                          const Shadow(
+                            color: AppColors.accent,
+                            offset: Offset(2, 2),
+                            blurRadius: 4,
                           ),
-                          glowColor: AppColors.accent,
-                          borderRadius: 14,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          child: Center(
-                            child: Text(
-                              'Contingent Portal',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                                letterSpacing: 1.0,
+                          const Shadow(
+                            color: AppColors.primary,
+                            offset: Offset(-2, -2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'EVENT TRACKING SYSTEM',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 4.0,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    // Portal Buttons
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 320),
+                      child: Column(
+                        children: [
+                          LiquidGlassContainer(
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const LoginPage()),
+                            ),
+                            glowColor: AppColors.accent,
+                            borderRadius: 14,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            child: Center(
+                              child: Text(
+                                'Contingent Portal',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                  letterSpacing: 1.0,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        LiquidGlassContainer(
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const LoginPageAdmin()),
-                          ),
-                          glowColor: AppColors.primary,
-                          borderRadius: 14,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          child: Center(
-                            child: Text(
-                              'Admin Portal',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                                letterSpacing: 1.0,
+                          const SizedBox(height: 24),
+                          LiquidGlassContainer(
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const LoginPageAdmin()),
+                            ),
+                            glowColor: AppColors.primary,
+                            borderRadius: 14,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            child: Center(
+                              child: Text(
+                                'Admin Portal',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                  letterSpacing: 1.0,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -6,6 +6,7 @@ import 'package:malhar_ets/app/contingent/auth/contingent_controller.dart';
 import 'package:malhar_ets/constants/app_bar.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
+import 'package:malhar_ets/utils/session_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:malhar_ets/helpers/glass_container.dart';
 
@@ -103,25 +104,28 @@ class _LoginPageState extends State<LoginPage> {
 
                               AppFeedback.hideLoading(context);
 
-                              if (result['success']) {
-                                // Finish autofill context if used
-                                TextInput.finishAutofillContext();
+                               if (result['success']) {
+                                 // Finish autofill context if used
+                                 TextInput.finishAutofillContext();
+                                 await SessionManager.saveContingentSession(result['contingent']);
 
-                                AppFeedback.showSuccess(
-                                  context,
-                                  result['message'],
-                                );
+                                 AppFeedback.showSuccess(
+                                   context,
+                                   result['message'],
+                                 );
 
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (_) => Main(
-                                          contingent: result['contingent'],
-                                        ),
-                                  ),
-                                );
-                              } else {
+                                 if (context.mounted) {
+                                   Navigator.pushReplacement(
+                                     context,
+                                     MaterialPageRoute(
+                                       builder:
+                                           (_) => Main(
+                                             contingent: result['contingent'],
+                                           ),
+                                     ),
+                                   );
+                                 }
+                               } else {
                                 AppFeedback.showError(
                                   context,
                                   result['message'],
