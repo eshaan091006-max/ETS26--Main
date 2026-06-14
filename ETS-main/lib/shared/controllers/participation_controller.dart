@@ -104,6 +104,13 @@ class ParticipationController {
     Participation participation,
   ) async {
     try {
+      await loadParticipations();
+      int nextId = 1;
+      if (_participations.isNotEmpty) {
+        nextId = _participations.map((p) => p.participationId).reduce((a, b) => a > b ? a : b) + 1;
+      }
+      participation.participationId = nextId;
+
       final response =
           await _client
               .from('participations')
@@ -131,6 +138,16 @@ class ParticipationController {
     List<Participation> participations,
   ) async {
     try {
+      await loadParticipations();
+      int nextId = 1;
+      if (_participations.isNotEmpty) {
+        nextId = _participations.map((p) => p.participationId).reduce((a, b) => a > b ? a : b) + 1;
+      }
+
+      for (int i = 0; i < participations.length; i++) {
+        participations[i].participationId = nextId + i;
+      }
+
       final response =
           await _client
               .from('participations')

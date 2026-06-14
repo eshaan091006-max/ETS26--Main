@@ -38,7 +38,7 @@ class Participation {
   };
 
   Map<String, dynamic> toInsertJson() => {
-    // "participation_id": participationId,
+    "participation_id": participationId,
     "contingent_id": contingentId,
     "event_id": eventId,
     "marks_scored": marksScored,
