@@ -25,7 +25,18 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController(
     text: '',
   );
+  final FocusNode _usernameFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
   bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _usernameFocus.dispose();
+    _passwordFocus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,20 +82,22 @@ class _LoginPageState extends State<LoginPage> {
                       child: Column(
                         children: [
                           _buildTextField(
-                          controller: _usernameController,
-                          label: "Username",
-                          hint: "Enter your username",
-                          autofillHint: AutofillHints.username,
-                        ),
-                        SizedBox(height: 20),
-                        _buildTextField(
-                          controller: _passwordController,
-                          label: "Password",
-                          hint: "Enter your password",
-                          obscureText: true,
-                          autofillHint: AutofillHints.password,
-                        ),
-                        SizedBox(height: 30),
+                            controller: _usernameController,
+                            label: "Username",
+                            hint: "Enter your username",
+                            focusNode: _usernameFocus,
+                            autofillHint: AutofillHints.username,
+                          ),
+                          const SizedBox(height: 20),
+                          _buildTextField(
+                            controller: _passwordController,
+                            label: "Password",
+                            hint: "Enter your password",
+                            obscureText: true,
+                            focusNode: _passwordFocus,
+                            autofillHint: AutofillHints.password,
+                          ),
+                          const SizedBox(height: 30),
                         ElevatedButton(
                           onPressed: () async {
                             if (!_formKey.currentState!.validate()) return;
@@ -218,47 +231,62 @@ class _LoginPageState extends State<LoginPage> {
     required TextEditingController controller,
     required String label,
     required String hint,
+    required FocusNode focusNode,
     bool obscureText = false,
     String? autofillHint,
   }) {
     return TextFormField(
       controller: controller,
-      style: TextStyle(color: AppColors.textWhite),
+      focusNode: focusNode,
+      style: const TextStyle(color: AppColors.textWhite),
       obscureText: (obscureText) ? _obscurePassword : false,
       autofillHints: autofillHint != null ? [autofillHint] : null,
+      onTap: () {
+        if (!focusNode.hasFocus) {
+          focusNode.requestFocus();
+        } else {
+          focusNode.unfocus();
+          Future.delayed(const Duration(milliseconds: 50), () {
+            focusNode.requestFocus();
+          });
+        }
+      },
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: TextStyle(
+        labelStyle: const TextStyle(
           color: AppColors.primary,
           fontWeight: FontWeight.w500,
         ),
-        hintStyle: TextStyle(color: AppColors.textSecondary),
+        hintStyle: const TextStyle(color: AppColors.textSecondary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: AppColors.primary, width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: AppColors.textSecondary, width: 1),
+          borderSide: const BorderSide(color: AppColors.textSecondary, width: 1),
         ),
-        contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+        contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
         suffixIconColor: AppColors.textWhite,
         suffixIcon:
             (!obscureText)
-                ? Icon(Icons.person)
+                ? const Icon(Icons.person)
                 : IconButton(
                   icon: Icon(
                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
                     color: AppColors.primary,
                   ),
-                  onPressed:
-                      () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                    focusNode.requestFocus();
+                  },
                 ),
       ),
       validator: (value) {

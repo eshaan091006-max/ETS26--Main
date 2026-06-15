@@ -18,13 +18,20 @@ class LoginPageAdmin extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPageAdmin> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController(
-    text: '',
-  );
-  final TextEditingController _passwordController = TextEditingController(
-    text: '',
-  );
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _usernameFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
   bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _usernameFocus.dispose();
+    _passwordFocus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,186 +77,203 @@ class _LoginPageState extends State<LoginPageAdmin> {
                       child: Column(
                         children: [
                           _buildTextField(
-                          controller: _usernameController,
-                          label: "Username",
-                          hint: "Enter your username",
-                          autofillHint: AutofillHints.username,
-                        ),
-                        SizedBox(height: 20),
-                        _buildTextField(
-                          controller: _passwordController,
-                          label: "Password",
-                          hint: "Enter your password",
-                          obscureText: true,
-                          autofillHint: AutofillHints.password,
-                        ),
-                        SizedBox(height: 30),
-                        ElevatedButton(
-                          onPressed: () async {
-                            if (!_formKey.currentState!.validate()) return;
+                            controller: _usernameController,
+                            label: "Username",
+                            hint: "Enter your username",
+                            focusNode: _usernameFocus,
+                            autofillHint: AutofillHints.username,
+                          ),
+                          const SizedBox(height: 20),
+                          _buildTextField(
+                            controller: _passwordController,
+                            label: "Password",
+                            hint: "Enter your password",
+                            obscureText: true,
+                            focusNode: _passwordFocus,
+                            autofillHint: AutofillHints.password,
+                          ),
+                          const SizedBox(height: 30),
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (!_formKey.currentState!.validate()) return;
 
-                            AppFeedback.showLoading(
-                              context,
-                              message: 'Authenticating...',
-                            );
-
-                            try {
-                              final result = await AdminController.loginAsAdmin(
-                                _usernameController.text,
-                                _passwordController.text,
+                              AppFeedback.showLoading(
+                                context,
+                                message: 'Authenticating...',
                               );
-                              if (!mounted) return;
 
-                              AppFeedback.hideLoading(context);
-
-                              if (result['success']) {
-                                TextInput.finishAutofillContext(); // ✅ End autofill
-                                await SessionManager.saveAdminSession(
+                              try {
+                                final result = await AdminController.loginAsAdmin(
                                   _usernameController.text,
-                                  result['is_volunteer'] ?? false,
+                                  _passwordController.text,
                                 );
-                                AppFeedback.showSuccess(
-                                  context,
-                                  result['message'],
-                                );
-                                if (context.mounted) {
-                                  Navigator.pushReplacement(
+                                if (!mounted) return;
+
+                                AppFeedback.hideLoading(context);
+
+                                if (result['success']) {
+                                  TextInput.finishAutofillContext(); // ✅ End autofill
+                                  await SessionManager.saveAdminSession(
+                                    _usernameController.text,
+                                    result['is_volunteer'] ?? false,
+                                  );
+                                  AppFeedback.showSuccess(
                                     context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) => Main(
-                                            isVolunteer: result['is_volunteer'],
-                                          ),
-                                    ),
+                                    result['message'],
+                                  );
+                                  if (context.mounted) {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) => Main(
+                                              isVolunteer: result['is_volunteer'],
+                                            ),
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  AppFeedback.showError(
+                                    context,
+                                    result['message'],
                                   );
                                 }
-                              } else {
+                              } catch (e) {
+                                if (!mounted) return;
+                                AppFeedback.hideLoading(context);
                                 AppFeedback.showError(
                                   context,
-                                  result['message'],
+                                  'An error occurred: $e',
                                 );
                               }
-                            } catch (e) {
-                              if (!mounted) return;
-                              AppFeedback.hideLoading(context);
-                              AppFeedback.showError(
-                                context,
-                                'An error occurred: $e',
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            padding: EdgeInsets.symmetric(
-                              vertical: 15,
-                              horizontal: 50,
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 15,
+                                horizontal: 50,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              elevation: 5,
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            elevation: 5,
-                          ),
-                          child: Text(
-                            "Login",
-                            style: TextStyle(
-                              color: AppColors.textWhite,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
+                            child: const Text(
+                              "Login",
+                              style: TextStyle(
+                                color: AppColors.textWhite,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Don't have an account? ",
-                      style: GoogleFonts.montserrat(
-                        color: AppColors.textSecondary,
-                        fontSize: 16,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Placeholder for future Sign-Up
-                      },
-                      child: Text(
-                        "Skill Issue",
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Don't have an account? ",
                         style: GoogleFonts.montserrat(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
+                          color: AppColors.textSecondary,
+                          fontSize: 16,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                      TextButton(
+                        onPressed: () {
+                          // Placeholder for future Sign-Up
+                        },
+                        child: Text(
+                          "Skill Issue",
+                          style: GoogleFonts.montserrat(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
+    }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    bool obscureText = false,
-    String? autofillHint,
-  }) {
-    return TextFormField(
-      controller: controller,
-      style: TextStyle(color: AppColors.textWhite),
-      obscureText: (obscureText) ? _obscurePassword : false,
-      autofillHints: autofillHint != null ? [autofillHint] : null,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        labelStyle: TextStyle(
-          color: AppColors.primary,
-          fontWeight: FontWeight.w500,
-        ),
-        hintStyle: TextStyle(color: AppColors.textSecondary),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: AppColors.primary, width: 2),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: AppColors.textSecondary, width: 1),
-        ),
-        contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 20),
-        suffixIconColor: AppColors.textWhite,
-        suffixIcon:
-            (!obscureText)
-                ? Icon(Icons.person)
-                : IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                    color: AppColors.primary,
+    Widget _buildTextField({
+      required TextEditingController controller,
+      required String label,
+      required String hint,
+      required FocusNode focusNode,
+      bool obscureText = false,
+      String? autofillHint,
+    }) {
+      return TextFormField(
+        controller: controller,
+        focusNode: focusNode,
+        style: const TextStyle(color: AppColors.textWhite),
+        obscureText: (obscureText) ? _obscurePassword : false,
+        autofillHints: autofillHint != null ? [autofillHint] : null,
+        onTap: () {
+          if (!focusNode.hasFocus) {
+            focusNode.requestFocus();
+          } else {
+            focusNode.unfocus();
+            Future.delayed(const Duration(milliseconds: 50), () {
+              focusNode.requestFocus();
+            });
+          }
+        },
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          labelStyle: const TextStyle(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w500,
+          ),
+          hintStyle: const TextStyle(color: AppColors.textSecondary),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(color: AppColors.textSecondary, width: 1),
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+          suffixIconColor: AppColors.textWhite,
+          suffixIcon:
+              (!obscureText)
+                  ? const Icon(Icons.person)
+                  : IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: AppColors.primary,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                      focusNode.requestFocus();
+                    },
                   ),
-                  onPressed:
-                      () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter $label';
-        }
-        return null;
-      },
-    );
-  }
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          return null;
+        },
+      );
+    }
 }
