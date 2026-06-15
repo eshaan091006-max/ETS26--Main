@@ -9,6 +9,7 @@ import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/utils/session_manager.dart';
 import 'package:malhar_ets/helpers/glass_container.dart';
+import 'package:malhar_ets/helpers/ambient_glow_background.dart';
 
 class LoginPageAdmin extends StatefulWidget {
   const LoginPageAdmin({super.key});
@@ -37,11 +38,12 @@ class _LoginPageState extends State<LoginPageAdmin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       appBar: getAppBar(context, false),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
+      body: AmbientGlowBackground(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Center(
           child: SingleChildScrollView(
             child: TweenAnimationBuilder<double>(
               duration: const Duration(milliseconds: 700),
@@ -94,7 +96,8 @@ class _LoginPageState extends State<LoginPageAdmin> {
                             autofillHint: AutofillHints.password,
                           ),
                           const SizedBox(height: 30),
-                          ElevatedButton(
+                          _buildGradientButton(
+                            text: "Login",
                             onPressed: () async {
                               if (!_formKey.currentState!.validate()) return;
 
@@ -148,25 +151,6 @@ class _LoginPageState extends State<LoginPageAdmin> {
                                 );
                               }
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 15,
-                                horizontal: 50,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              elevation: 5,
-                            ),
-                            child: const Text(
-                              "Login",
-                              style: TextStyle(
-                                color: AppColors.textWhite,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
                           ),
                         ],
                       ),
@@ -275,6 +259,48 @@ class _LoginPageState extends State<LoginPageAdmin> {
           }
           return null;
         },
+      );
+    }
+
+    Widget _buildGradientButton({
+      required VoidCallback onPressed,
+      required String text,
+    }) {
+      return Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.sunburstGradient,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withOpacity(0.35),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            padding: const EdgeInsets.symmetric(
+              vertical: 15,
+              horizontal: 60,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: AppColors.black,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.1,
+            ),
+          ),
+        ),
       );
     }
 }

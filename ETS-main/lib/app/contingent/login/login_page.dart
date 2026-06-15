@@ -10,6 +10,7 @@ import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/utils/session_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:malhar_ets/helpers/glass_container.dart';
+import 'package:malhar_ets/helpers/ambient_glow_background.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -42,138 +43,121 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       appBar: getAppBar(context, false),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: TweenAnimationBuilder<double>(
-              duration: const Duration(milliseconds: 700),
-              tween: Tween<double>(begin: 0.0, end: 1.0),
-              curve: Curves.easeOutCubic,
-              builder: (context, value, child) {
-                return Opacity(
-                  opacity: value,
-                  child: Transform.translate(
-                    offset: Offset(0, 30 * (1.0 - value)),
-                    child: child,
+      body: AmbientGlowBackground(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Center(
+            child: SingleChildScrollView(
+              child: TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 700),
+                tween: Tween<double>(begin: 0.0, end: 1.0),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) {
+                  return Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, 30 * (1.0 - value)),
+                      child: child,
+                    ),
+                  );
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Contingent/PRNC Login",
+                    style: GoogleFonts.montserrat(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                      letterSpacing: 1.2,
+                    ),
                   ),
-                );
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "Contingent/PRNC Login",
-                  style: GoogleFonts.montserrat(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                LiquidGlassContainer(
-                  glowColor: AppColors.accent,
-                  padding: const EdgeInsets.all(24.0),
-                  child: Form(
-                    key: _formKey,
-                    child: AutofillGroup(
-                      child: Column(
-                        children: [
-                          _buildTextField(
-                            controller: _usernameController,
-                            label: "Username",
-                            hint: "Enter your username",
-                            focusNode: _usernameFocus,
-                            autofillHint: AutofillHints.username,
-                          ),
-                          const SizedBox(height: 20),
-                          _buildTextField(
-                            controller: _passwordController,
-                            label: "Password",
-                            hint: "Enter your password",
-                            obscureText: true,
-                            focusNode: _passwordFocus,
-                            autofillHint: AutofillHints.password,
-                          ),
-                          const SizedBox(height: 30),
-                        ElevatedButton(
-                          onPressed: () async {
-                            if (!_formKey.currentState!.validate()) return;
+                  const SizedBox(height: 40),
+                  LiquidGlassContainer(
+                    glowColor: AppColors.accent,
+                    padding: const EdgeInsets.all(24.0),
+                    child: Form(
+                      key: _formKey,
+                      child: AutofillGroup(
+                        child: Column(
+                          children: [
+                            _buildTextField(
+                              controller: _usernameController,
+                              label: "Username",
+                              hint: "Enter your username",
+                              focusNode: _usernameFocus,
+                              autofillHint: AutofillHints.username,
+                            ),
+                            const SizedBox(height: 20),
+                            _buildTextField(
+                              controller: _passwordController,
+                              label: "Password",
+                              hint: "Enter your password",
+                              obscureText: true,
+                              focusNode: _passwordFocus,
+                              autofillHint: AutofillHints.password,
+                            ),
+                            const SizedBox(height: 30),
+                            _buildGradientButton(
+                              text: "Login",
+                              onPressed: () async {
+                                if (!_formKey.currentState!.validate()) return;
 
-                            AppFeedback.showLoading(
-                              context,
-                              message: 'Authenticating...',
-                            );
-
-                            try {
-                              final result =
-                                  await ContingentController.loginAsContingent(
-                                    _usernameController.text,
-                                    _passwordController.text,
-                                  );
-                              if (!mounted) return;
-
-                              AppFeedback.hideLoading(context);
-
-                               if (result['success']) {
-                                 // Finish autofill context if used
-                                 TextInput.finishAutofillContext();
-                                 await SessionManager.saveContingentSession(result['contingent']);
-
-                                 AppFeedback.showSuccess(
-                                   context,
-                                   result['message'],
-                                 );
-
-                                 if (context.mounted) {
-                                   Navigator.pushReplacement(
-                                     context,
-                                     MaterialPageRoute(
-                                       builder:
-                                           (_) => Main(
-                                             contingent: result['contingent'],
-                                           ),
-                                     ),
-                                   );
-                                 }
-                               } else {
-                                AppFeedback.showError(
+                                AppFeedback.showLoading(
                                   context,
-                                  result['message'],
+                                  message: 'Authenticating...',
                                 );
-                              }
-                            } catch (e) {
-                              if (!mounted) return;
-                              AppFeedback.hideLoading(context);
-                              AppFeedback.showError(
-                                context,
-                                'An error occurred: $e',
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            padding: EdgeInsets.symmetric(
-                              vertical: 15,
-                              horizontal: 50,
+
+                                try {
+                                  final result =
+                                      await ContingentController.loginAsContingent(
+                                        _usernameController.text,
+                                        _passwordController.text,
+                                      );
+                                  if (!mounted) return;
+
+                                  AppFeedback.hideLoading(context);
+
+                                   if (result['success']) {
+                                     // Finish autofill context if used
+                                     TextInput.finishAutofillContext();
+                                     await SessionManager.saveContingentSession(result['contingent']);
+
+                                     AppFeedback.showSuccess(
+                                       context,
+                                       result['message'],
+                                     );
+
+                                     if (context.mounted) {
+                                       Navigator.pushReplacement(
+                                         context,
+                                         MaterialPageRoute(
+                                           builder:
+                                               (_) => Main(
+                                                 contingent: result['contingent'],
+                                               ),
+                                         ),
+                                       );
+                                     }
+                                   } else {
+                                    AppFeedback.showError(
+                                      context,
+                                      result['message'],
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (!mounted) return;
+                                  AppFeedback.hideLoading(context);
+                                  AppFeedback.showError(
+                                    context,
+                                    'An error occurred: $e',
+                                  );
+                                }
+                              },
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            elevation: 5,
-                          ),
-                          child: Text(
-                            "Login",
-                            style: GoogleFonts.montserrat(
-                              color: AppColors.textWhite,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -223,6 +207,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             ),
           ),
+        ),
         ),
       ),
     );
@@ -296,6 +281,48 @@ class _LoginPageState extends State<LoginPage> {
         }
         return null;
       },
+    );
+  }
+
+  Widget _buildGradientButton({
+    required VoidCallback onPressed,
+    required String text,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: AppColors.sunburstGradient,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.35),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          padding: const EdgeInsets.symmetric(
+            vertical: 15,
+            horizontal: 60,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        child: Text(
+          text,
+          style: GoogleFonts.montserrat(
+            color: AppColors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.1,
+          ),
+        ),
+      ),
     );
   }
 }
