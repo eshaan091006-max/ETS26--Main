@@ -370,7 +370,7 @@ class __FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.between,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Filter Participations",

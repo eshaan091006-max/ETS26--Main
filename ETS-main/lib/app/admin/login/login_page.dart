@@ -184,12 +184,13 @@ class _LoginPageState extends State<LoginPageAdmin> {
                   ),
                 ],
               ),
-              ),
             ),
           ),
         ),
-      );
-    }
+      ),
+    ),
+  );
+}
 
     Widget _buildTextField({
       required TextEditingController controller,
