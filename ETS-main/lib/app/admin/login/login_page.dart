@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -223,7 +224,7 @@ class _LoginPageState extends State<LoginPageAdmin> {
         onTap: () {
           if (!focusNode.hasFocus) {
             focusNode.requestFocus();
-          } else {
+          } else if (!kIsWeb) {
             focusNode.unfocus();
             Future.delayed(const Duration(milliseconds: 50), () {
               focusNode.requestFocus();
