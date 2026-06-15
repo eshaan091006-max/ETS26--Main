@@ -13,7 +13,7 @@ class LiquidGlassContainer extends StatefulWidget {
   const LiquidGlassContainer({
     super.key,
     required this.child,
-    this.blur = 20.0,
+    this.blur = 30.0,
     this.borderRadius = 18.0,
     this.padding,
     this.margin,
@@ -117,7 +117,7 @@ class _LiquidGlassContainerState extends State<LiquidGlassContainer> with Single
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(widget.borderRadius),
-                              color: Colors.black.withAlpha(110),
+                              color: Colors.black.withAlpha(190),
                             ),
                           ),
                         ),

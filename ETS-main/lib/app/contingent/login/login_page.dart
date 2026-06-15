@@ -183,12 +183,91 @@ class _LoginPageState extends State<LoginPage> {
                               'subject=Contingent Login Query&body=Hey, I am having trouble Logging In.',
                         );
 
-                        if (await canLaunchUrl(emailLaunchUri)) {
-                          await launchUrl(emailLaunchUri);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Could not launch email app'),
+                        try {
+                          if (await canLaunchUrl(emailLaunchUri)) {
+                            await launchUrl(emailLaunchUri);
+                          } else {
+                            throw Exception("Mail app not available");
+                          }
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: AppColors.secondary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(color: AppColors.border, width: 1.5),
+                              ),
+                              title: Text(
+                                "Contact Support",
+                                style: GoogleFonts.montserrat(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "No default email client could be launched. You can reach the admin directly at:",
+                                    style: GoogleFonts.poppins(color: AppColors.textWhite),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  SelectableText(
+                                    "malhar.admin@xaviers.edu.in",
+                                    style: GoogleFonts.poppins(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    "Close",
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Clipboard.setData(
+                                      const ClipboardData(
+                                        text: "malhar.admin@xaviers.edu.in",
+                                      ),
+                                    );
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Email copied to clipboard!",
+                                        ),
+                                        backgroundColor: AppColors.primary,
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    "Copy Email",
+                                    style: GoogleFonts.poppins(
+                                      color: AppColors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           );
                         }

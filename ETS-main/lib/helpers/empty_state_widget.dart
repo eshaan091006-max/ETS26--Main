@@ -6,11 +6,13 @@ class EmptyStateWidget extends StatefulWidget {
   final String title;
   final String subtitle;
   final IconData icon;
+  final Widget? action;
 
   const EmptyStateWidget({
     required this.title,
     required this.subtitle,
     required this.icon,
+    this.action,
     super.key,
   });
 
@@ -96,9 +98,13 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget>
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: AppColors.textSecondary.withOpacity(0.75),
+                  color: AppColors.textSecondary.withValues(alpha: 0.75),
                 ),
               ),
+              if (widget.action != null) ...[
+                const SizedBox(height: 24),
+                widget.action!,
+              ],
             ],
           ),
         ),
