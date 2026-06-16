@@ -174,19 +174,35 @@ class _LoginPageState extends State<LoginPageAdmin> {
                       ),
                       TextButton(
                         onPressed: () async {
-                          final Uri emailLaunchUri = Uri(
-                            scheme: 'mailto',
-                            path: 'malhar.admin@xaviers.edu.in',
-                            queryParameters: {
-                              'subject': 'Admin Registration Query',
-                              'body': 'Hey, I am having trouble registering an Admin account.',
-                            },
-                          );
+                          final Uri emailLaunchUri;
+                          if (kIsWeb) {
+                            emailLaunchUri = Uri(
+                              scheme: 'https',
+                              host: 'mail.google.com',
+                              path: '/mail/',
+                              queryParameters: {
+                                'view': 'cm',
+                                'fs': '1',
+                                'to': 'malhar.admin@xaviers.edu.in',
+                                'su': 'Admin Registration Query',
+                                'body': 'Hey, I am having trouble registering an Admin account.',
+                              },
+                            );
+                          } else {
+                            emailLaunchUri = Uri(
+                              scheme: 'mailto',
+                              path: 'malhar.admin@xaviers.edu.in',
+                              queryParameters: {
+                                'subject': 'Admin Registration Query',
+                                'body': 'Hey, I am having trouble registering an Admin account.',
+                              },
+                            );
+                          }
 
                           try {
                             final bool launched = await launchUrl(
                               emailLaunchUri,
-                              mode: LaunchMode.platformDefault,
+                              mode: kIsWeb ? LaunchMode.externalApplication : LaunchMode.platformDefault,
                             );
                             if (!launched) {
                               throw Exception("Failed to launch email client");

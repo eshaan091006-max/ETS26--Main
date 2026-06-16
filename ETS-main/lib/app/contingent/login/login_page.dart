@@ -179,19 +179,35 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     TextButton(
                       onPressed: () async {
-                        final Uri emailLaunchUri = Uri(
-                          scheme: 'mailto',
-                          path: 'malhar.admin@xaviers.edu.in',
-                          queryParameters: {
-                            'subject': 'Contingent Login Query',
-                            'body': 'Hey, I am having trouble Logging In.',
-                          },
-                        );
+                        final Uri emailLaunchUri;
+                        if (kIsWeb) {
+                          emailLaunchUri = Uri(
+                            scheme: 'https',
+                            host: 'mail.google.com',
+                            path: '/mail/',
+                            queryParameters: {
+                              'view': 'cm',
+                              'fs': '1',
+                              'to': 'malhar.admin@xaviers.edu.in',
+                              'su': 'Contingent Login Query',
+                              'body': 'Hey, I am having trouble Logging In.',
+                            },
+                          );
+                        } else {
+                          emailLaunchUri = Uri(
+                            scheme: 'mailto',
+                            path: 'malhar.admin@xaviers.edu.in',
+                            queryParameters: {
+                              'subject': 'Contingent Login Query',
+                              'body': 'Hey, I am having trouble Logging In.',
+                            },
+                          );
+                        }
 
                         try {
                           final bool launched = await launchUrl(
                             emailLaunchUri,
-                            mode: LaunchMode.platformDefault,
+                            mode: kIsWeb ? LaunchMode.externalApplication : LaunchMode.platformDefault,
                           );
                           if (!launched) {
                             throw Exception("Failed to launch email client");
