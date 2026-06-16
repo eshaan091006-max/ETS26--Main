@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:malhar_ets/app/admin/cards/event_card.dart';
 import 'package:malhar_ets/app/admin/event/contingents_participated_page.dart';
 import 'package:malhar_ets/app/admin/modals/event_modal.dart';
+import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/helpers/widgets.dart';
 import 'package:malhar_ets/shared/controllers/department_controller.dart';
 import 'package:malhar_ets/shared/controllers/event_controller.dart';
