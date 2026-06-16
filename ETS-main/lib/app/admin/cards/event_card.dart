@@ -122,6 +122,14 @@ class _EventCardState extends State<EventCard> {
                   ? "Not Set"
                   : event.highestMarks.toString(),
             ),
+            _buildDetailRow(
+              "Format / Elims",
+              event.elimsType == 0
+                  ? "Direct Finals"
+                  : event.elimsType == 1
+                      ? "Online elims + offline finals"
+                      : "Offline elims + offline finals",
+            ),
 
             const SizedBox(height: 12),
 

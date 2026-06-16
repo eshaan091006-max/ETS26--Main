@@ -90,6 +90,32 @@ class EventCard extends StatelessWidget {
               ],
             ),
 
+            const SizedBox(height: 6),
+
+            /// Format / Elims format
+            Row(
+              children: [
+                Icon(
+                  Icons.layers_outlined,
+                  size: 16,
+                  color: isFlagship ? Colors.white70 : AppColors.primary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  event.elimsType == 0
+                      ? "Direct Finals"
+                      : event.elimsType == 1
+                          ? "Online elims + offline finals"
+                          : "Offline elims + offline finals",
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+
             const SizedBox(height: 10),
 
             /// Form link preview (if provided)

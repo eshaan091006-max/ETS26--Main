@@ -61,6 +61,7 @@ Future<void> showEventModal(
       deptCont.departments.first;
   DateTime selectedDate = event?.dateTime ?? DateTime.now();
   int eventType = event?.eventType ?? 0;
+  int elimsType = event?.elimsType ?? 0;
 
   final isUpdating = event != null;
 
@@ -201,6 +202,30 @@ Future<void> showEventModal(
                         });
                       },
                     ),
+                    const SizedBox(height: 12),
+
+                    buildDropdown<int>(
+                      label: 'Event Format / Elims',
+                      value: elimsType,
+                      items: const [0, 1, 2],
+                      getLabel: (val) {
+                        switch (val) {
+                          case 0:
+                            return 'Direct Finals';
+                          case 1:
+                            return 'Online elims + offline finals';
+                          case 2:
+                            return 'Offline elims + offline finals';
+                          default:
+                            return 'Direct Finals';
+                        }
+                      },
+                      onChanged: (val) {
+                        setState(() {
+                          elimsType = val!;
+                        });
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -250,6 +275,7 @@ Future<void> showEventModal(
                         formLink: finalLinks.isNotEmpty ? finalLinks.first.link : '',
                         departmentId: selectedDepartment.id,
                         eventType: eventType,
+                        elimsType: elimsType,
                       ),
                       finalLinks,
                     );
