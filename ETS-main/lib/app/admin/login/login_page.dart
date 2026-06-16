@@ -208,6 +208,31 @@ class _LoginPageState extends State<LoginPageAdmin> {
                               throw Exception("Failed to launch email client");
                             }
                           } catch (e) {
+                            // Fallback: If mailto failed, try launching Gmail in the browser
+                            if (emailLaunchUri.scheme == 'mailto') {
+                              final Uri gmailUri = Uri(
+                                scheme: 'https',
+                                host: 'mail.google.com',
+                                path: '/mail/',
+                                queryParameters: {
+                                  'view': 'cm',
+                                  'fs': '1',
+                                  'to': 'malhar.admin@xaviers.edu.in',
+                                  'su': 'Admin Registration Query',
+                                  'body': 'Hey, I am having trouble registering an Admin account.',
+                                },
+                              );
+                              try {
+                                final bool webLaunched = await launchUrl(
+                                  gmailUri,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                                if (webLaunched) return; // Fallback succeeded
+                              } catch (_) {
+                                // If even Gmail Web fails, fall through to the dialog
+                              }
+                            }
+
                             if (!context.mounted) return;
                             showDialog(
                               context: context,
@@ -251,6 +276,38 @@ class _LoginPageState extends State<LoginPageAdmin> {
                                       "Close",
                                       style: GoogleFonts.poppins(
                                         color: Colors.white70,
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      final Uri gmailUri = Uri(
+                                        scheme: 'https',
+                                        host: 'mail.google.com',
+                                        path: '/mail/',
+                                        queryParameters: {
+                                          'view': 'cm',
+                                          'fs': '1',
+                                          'to': 'malhar.admin@xaviers.edu.in',
+                                          'su': 'Admin Registration Query',
+                                          'body': 'Hey, I am having trouble registering an Admin account.',
+                                        },
+                                      );
+                                      Navigator.pop(context);
+                                      try {
+                                        await launchUrl(
+                                          gmailUri,
+                                          mode: LaunchMode.externalApplication,
+                                        );
+                                      } catch (_) {
+                                        // Ignore failure to open web page
+                                      }
+                                    },
+                                    child: Text(
+                                      "Open Gmail",
+                                      style: GoogleFonts.poppins(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
