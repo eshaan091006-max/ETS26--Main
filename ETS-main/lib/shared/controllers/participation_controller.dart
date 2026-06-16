@@ -232,10 +232,16 @@ class ParticipationController {
       int maxMarks = participations.first.marksScored;
       for (Participation p in participations) {
         maxMarks = (p.marksScored > maxMarks) ? p.marksScored : maxMarks;
-        await updateParticipation(context, p, displayMsg: false);
+        final bool updated = await updateParticipation(context, p, displayMsg: false);
+        if (!updated) {
+          throw Exception("Failed to update participation score for contingent ID ${p.contingentId}");
+        }
       }
       event.highestMarks = maxMarks;
-      await EventController().updateEvent(context, event);
+      final bool eventUpdated = await EventController().updateEvent(context, event);
+      if (!eventUpdated) {
+        throw Exception("Failed to update event highest marks");
+      }
       AppFeedback.showSuccess(context, "Participation updated successfully.");
       return true;
     } catch (e) {

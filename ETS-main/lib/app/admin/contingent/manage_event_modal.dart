@@ -219,13 +219,24 @@ class _UpdateEventSheetState extends State<UpdateEventSheet> {
 
   void _handleSubmit() async {
     if (_formKey.currentState!.validate()) {
+      bool allSucceeded = true;
       for (int i = 0; i < _fields.length; i++) {
         int marks = int.parse(_fields[i].text);
         Participation p = widget.participation[i];
         if (p.marksScored != marks) {
            p.marksScored = marks;
-           await ParticipationController().updateParticipation(context, p, displayMsg: false);
+           final bool success = await ParticipationController().updateParticipation(context, p, displayMsg: false);
+           if (!success) {
+             allSucceeded = false;
+           }
         }
+      }
+      
+      if (!allSucceeded) {
+        if (mounted) {
+          AppFeedback.showError(context, "Failed to update some participation marks. Please verify database RLS policies.");
+        }
+        return;
       }
       
       // Update highest marks for the affected events
