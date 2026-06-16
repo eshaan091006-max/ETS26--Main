@@ -6,6 +6,7 @@ import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/shared/models/department.dart';
 import 'package:vertical_card_pager/vertical_card_pager.dart';
+import 'package:malhar_ets/helpers/shimmer_skeleton.dart';
 
 class DepartmentsPage extends StatefulWidget {
   final Contingent contingent;
@@ -25,9 +26,10 @@ class _DepartmentsPageState extends State<DepartmentsPage> {
       builder: (context, _, __) {
         final List<Department> departments = DepartmentController().departments;
 
-        if (departments.isEmpty) {
-          return const Center(
-            child: CircularProgressIndicator(),
+        if (!PageRefreshController.initialLoadCompleted || departments.isEmpty) {
+          return const ShimmerSkeletonList(
+            itemCount: 3,
+            cardHeight: 180.0,
           );
         }
 

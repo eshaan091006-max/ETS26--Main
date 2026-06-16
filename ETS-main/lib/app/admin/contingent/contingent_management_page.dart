@@ -11,6 +11,7 @@ import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/helpers/animated_card_wrapper.dart';
 import 'package:malhar_ets/helpers/empty_state_widget.dart';
 import 'package:malhar_ets/helpers/glowing_search_field.dart';
+import 'package:malhar_ets/helpers/shimmer_skeleton.dart';
 
 class ContingentManagementPage extends StatefulWidget {
   const ContingentManagementPage({super.key});
@@ -77,12 +78,14 @@ class _ContingentManagementPageState extends State<ContingentManagementPage> {
                   }
                   await Future.delayed(const Duration(seconds: 1));
                 },
-                child: filteredContingents.isEmpty
-                    ? SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Container(
-                          height: MediaQuery.of(context).size.height * 0.6,
-                          alignment: Alignment.center,
+                child: !PageRefreshController.initialLoadCompleted
+                    ? const ShimmerSkeletonList(itemCount: 3, cardHeight: 120.0)
+                    : filteredContingents.isEmpty
+                        ? SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Container(
+                              height: MediaQuery.of(context).size.height * 0.6,
+                              alignment: Alignment.center,
                           child: EmptyStateWidget(
                             title: 'No Contingents Found',
                             subtitle: 'We couldn\'t find any contingents matching your search.',

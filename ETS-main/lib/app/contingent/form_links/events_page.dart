@@ -6,6 +6,7 @@ import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/shared/models/department.dart';
 import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
+import 'package:malhar_ets/helpers/shimmer_skeleton.dart';
 
 class EventsPage extends StatelessWidget {
   final Department department;
@@ -39,16 +40,18 @@ class EventsPage extends StatelessWidget {
           }
           await Future.delayed(const Duration(seconds: 1));
         },
-        child: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: events.length,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              child: EventCard(event: events[index], contingent: contingent),
-            );
-          },
-        ),
+        child: !PageRefreshController.initialLoadCompleted
+            ? const ShimmerSkeletonList(itemCount: 3, cardHeight: 140.0)
+            : ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: events.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: EventCard(event: events[index], contingent: contingent),
+                  );
+                },
+              ),
       ),
     );
   }

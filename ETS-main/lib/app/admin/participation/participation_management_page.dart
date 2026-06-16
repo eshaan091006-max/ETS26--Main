@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:malhar_ets/app/admin/cards/grouped_participation_card.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
-import 'package:malhar_ets/helpers/widgets.dart';
 import 'package:malhar_ets/shared/controllers/contingent_controller.dart';
 import 'package:malhar_ets/shared/controllers/department_controller.dart';
 import 'package:malhar_ets/shared/controllers/event_controller.dart';
@@ -15,6 +14,7 @@ import 'package:malhar_ets/app/admin/modals/confirm_deletion.dart';
 import 'package:malhar_ets/helpers/animated_card_wrapper.dart';
 import 'package:malhar_ets/helpers/empty_state_widget.dart';
 import 'package:malhar_ets/helpers/glowing_search_field.dart';
+import 'package:malhar_ets/helpers/shimmer_skeleton.dart';
 
 class ParticipationManagementPage extends StatefulWidget {
   const ParticipationManagementPage({super.key});
@@ -233,9 +233,15 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
                 ],
               ),
             ),
-
-            (searchedGrouped.isEmpty)
-                ? Expanded(
+            !PageRefreshController.initialLoadCompleted
+                ? const Expanded(
+                    child: ShimmerSkeletonList(
+                      itemCount: 3,
+                      cardHeight: 200.0,
+                    ),
+                  )
+                : (searchedGrouped.isEmpty)
+                    ? Expanded(
                     child: RefreshIndicator(
                       color: AppColors.primary,
                       backgroundColor: AppColors.secondary,

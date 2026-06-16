@@ -10,6 +10,7 @@ import 'package:malhar_ets/shared/controllers/participation_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/models/participation.dart';
+import 'package:malhar_ets/helpers/shimmer_skeleton.dart';
 
 class ScoresPage extends StatefulWidget {
   final Contingent c;
@@ -126,8 +127,10 @@ class _ScoresPageState extends State<ScoresPage> {
                   }
                   await Future.delayed(const Duration(seconds: 1));
                 },
-                  child: filtered.isEmpty
-                      ? SingleChildScrollView(
+                child: !PageRefreshController.initialLoadCompleted
+                    ? const ShimmerSkeletonList(itemCount: 3, cardHeight: 180.0)
+                    : filtered.isEmpty
+                        ? SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           child: Container(
                             height: MediaQuery.of(context).size.height * 0.6,

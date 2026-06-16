@@ -11,6 +11,7 @@ import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/helpers/animated_card_wrapper.dart';
 import 'package:malhar_ets/helpers/empty_state_widget.dart';
+import 'package:malhar_ets/helpers/shimmer_skeleton.dart';
 
 class EventManagementPage extends StatefulWidget {
   const EventManagementPage({super.key});
@@ -107,12 +108,14 @@ class _EventManagementPageState extends State<EventManagementPage> {
               valueListenable: PageRefreshController.refreshNotifier,
               builder: (_, __, ___) {
                 final events = filteredEvents();
-                return events.isEmpty
-                    ? SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Container(
-                          height: MediaQuery.of(context).size.height * 0.6,
-                          alignment: Alignment.center,
+                return !PageRefreshController.initialLoadCompleted
+                    ? const ShimmerSkeletonList(itemCount: 3, cardHeight: 165.0)
+                    : events.isEmpty
+                        ? SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Container(
+                              height: MediaQuery.of(context).size.height * 0.6,
+                              alignment: Alignment.center,
                           child: EmptyStateWidget(
                             title: 'No Events Found',
                             subtitle: 'Try adjusting your type or department filters.',

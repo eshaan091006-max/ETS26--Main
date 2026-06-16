@@ -80,12 +80,23 @@ class _MainState extends State<Main> {
     ]);
   }
 
-  void loadData() {
-    DepartmentController().loadDepartments();
-    EventController().loadEvents();
-    ContingentController().loadContingents();
-    ParticipationController().loadParticipations();
-    FormLinkController().loadFormLinks();
+  void loadData() async {
+    PageRefreshController.initialLoadCompleted = false;
+    PageRefreshController.triggerRefresh();
+    try {
+      await Future.wait([
+        DepartmentController().loadDepartments(),
+        EventController().loadEvents(),
+        ContingentController().loadContingents(),
+        ParticipationController().loadParticipations(),
+        FormLinkController().loadFormLinks(),
+      ]);
+    } catch (e) {
+      debugPrint("Error loading data: $e");
+    } finally {
+      PageRefreshController.initialLoadCompleted = true;
+      PageRefreshController.triggerRefresh();
+    }
   }
 
   void subscribeToChannels() {

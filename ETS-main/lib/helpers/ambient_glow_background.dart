@@ -77,18 +77,42 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
           animation: _controller,
           builder: (context, child) {
             final t = _controller.value * 2 * pi;
+            final pathT = t * 0.4;
+
+            // Soft periodic color shifts using sine wave
+            final colorShiftFactor1 = (sin(t) + 1.0) / 2.0;
+            final colorShiftFactor2 = (cos(t) + 1.0) / 2.0;
+            final colorShiftFactor3 = (sin(t + pi / 4) + 1.0) / 2.0;
+
+            final orb1Color = Color.lerp(
+              AppColors.primary,
+              const Color(0xFFFFE57F), // Neon gold
+              colorShiftFactor1,
+            )!;
+
+            final orb2Color = Color.lerp(
+              AppColors.accent,
+              const Color(0xFFD500F9), // Neon violet
+              colorShiftFactor2,
+            )!;
+
+            final orb3Color = Color.lerp(
+              AppColors.deepPurple,
+              const Color(0xFF4A148C), // Vibrant purple
+              colorShiftFactor3,
+            )!;
 
             // Orb 1 (Gold/Primary) - Elliptical motion in top-right
-            final orb1X = size.width * 0.5 + sin(t) * 90;
-            final orb1Y = size.height * 0.15 + cos(t) * 70;
+            final orb1X = size.width * 0.5 + sin(pathT) * 90;
+            final orb1Y = size.height * 0.15 + cos(pathT) * 70;
 
             // Orb 2 (Purple/Accent) - Elliptical motion in bottom-left
-            final orb2X = size.width * 0.05 + cos(t + pi / 2) * 100;
-            final orb2Y = size.height * 0.55 + sin(t + pi / 2) * 80;
+            final orb2X = size.width * 0.05 + cos(pathT + pi / 2) * 100;
+            final orb2Y = size.height * 0.55 + sin(pathT + pi / 2) * 80;
 
             // Orb 3 (Deep Purple) - Smooth oscillation in center-right
-            final orb3X = size.width * 0.4 + sin(t * 1.3) * 60;
-            final orb3Y = size.height * 0.4 + cos(t * 1.3) * 60;
+            final orb3X = size.width * 0.4 + sin(pathT * 1.3) * 60;
+            final orb3Y = size.height * 0.4 + cos(pathT * 1.3) * 60;
 
             return Stack(
               children: [
@@ -101,7 +125,7 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
                     height: 280,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.primary.withValues(alpha: 0.08),
+                      color: orb1Color.withValues(alpha: 0.08),
                     ),
                   ),
                 ),
@@ -114,7 +138,7 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
                     height: 320,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.accent.withValues(alpha: 0.08),
+                      color: orb2Color.withValues(alpha: 0.08),
                     ),
                   ),
                 ),
@@ -127,7 +151,7 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
                     height: 340,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.deepPurple.withValues(alpha: 0.12),
+                      color: orb3Color.withValues(alpha: 0.12),
                     ),
                   ),
                 ),
