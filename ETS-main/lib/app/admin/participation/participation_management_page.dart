@@ -236,72 +236,100 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
 
             (searchedGrouped.isEmpty)
                 ? Expanded(
-                    child: EmptyStateWidget(
-                      title: 'No Participations Found',
-                      subtitle: 'Try adjusting your search queries or active filters.',
-                      icon: Icons.how_to_vote,
-                      action: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 24,
-                          ),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            selectedDept = 'All';
-                            selectedContingent = 'All';
-                            _searchController.clear();
-                          });
-                        },
-                        child: Text(
-                          "Clear Filters",
-                          style: GoogleFonts.montserrat(
-                            color: AppColors.black,
-                            fontWeight: FontWeight.bold,
+                    child: RefreshIndicator(
+                      color: AppColors.primary,
+                      backgroundColor: AppColors.secondary,
+                      onRefresh: () async {
+                        if (PageRefreshController.onRefresh != null) {
+                          PageRefreshController.onRefresh!();
+                        }
+                        await Future.delayed(const Duration(seconds: 1));
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          alignment: Alignment.center,
+                          child: EmptyStateWidget(
+                            title: 'No Participations Found',
+                            subtitle: 'Try adjusting your search queries or active filters.',
+                            icon: Icons.how_to_vote,
+                            action: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 24,
+                                ),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  selectedDept = 'All';
+                                  selectedContingent = 'All';
+                                  _searchController.clear();
+                                });
+                              },
+                              child: Text(
+                                "Clear Filters",
+                                style: GoogleFonts.montserrat(
+                                  color: AppColors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   )
                 : Expanded(
-                    child: ListView.builder(
-                      itemCount: searchedGrouped.length,
-                      itemBuilder: (context, index) {
-                        final contingentId = searchedGrouped.keys.elementAt(index);
-                        final List<Participation> contingentParticipations =
-                            searchedGrouped[contingentId]!;
-
-                        final Contingent contingent =
-                            _contingentController.getContingentById(
-                              contingentId,
-                            ) ??
-                            Contingent();
-
-                        return AnimatedCardWrapper(
-                          key: ValueKey(contingentId),
-                          child: GroupedParticipationCard(
-                            contingent: contingent,
-                            participations: contingentParticipations,
-                            onEdit: (Participation p) {
-                              showUpdateEventBottomSheet(context, [p], contingent);
-                            },
-                            onDelete: (Participation p) {
-                              confirmDeletionModal(
-                                context,
-                                'Participation',
-                                onSubmit: () {
-                                  _participationController.deleteParticipation(context, p);
-                                },
-                              );
-                            },
-                          ),
-                        );
+                    child: RefreshIndicator(
+                      color: AppColors.primary,
+                      backgroundColor: AppColors.secondary,
+                      onRefresh: () async {
+                        if (PageRefreshController.onRefresh != null) {
+                          PageRefreshController.onRefresh!();
+                        }
+                        await Future.delayed(const Duration(seconds: 1));
                       },
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: searchedGrouped.length,
+                        itemBuilder: (context, index) {
+                          final contingentId = searchedGrouped.keys.elementAt(index);
+                          final List<Participation> contingentParticipations =
+                              searchedGrouped[contingentId]!;
+
+                          final Contingent contingent =
+                              _contingentController.getContingentById(
+                                contingentId,
+                              ) ??
+                              Contingent();
+
+                          return AnimatedCardWrapper(
+                            key: ValueKey(contingentId),
+                            child: GroupedParticipationCard(
+                              contingent: contingent,
+                              participations: contingentParticipations,
+                              onEdit: (Participation p) {
+                                showUpdateEventBottomSheet(context, [p], contingent);
+                              },
+                              onDelete: (Participation p) {
+                                confirmDeletionModal(
+                                  context,
+                                  'Participation',
+                                  onSubmit: () {
+                                    _participationController.deleteParticipation(context, p);
+                                  },
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
           ],

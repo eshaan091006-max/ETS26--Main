@@ -41,17 +41,19 @@ class _ContingentsParticipatedPageState
             .toList();
 
     final contingentMap = {
-      for (var c in _contingentController.contingents) c.contingentId: c
+      for (var c in _contingentController.contingents) c.contingentId: c,
     };
 
-    participations = allParticipations
-        .where((p) => contingentMap.containsKey(p.contingentId))
-        .toList();
+    participations =
+        allParticipations
+            .where((p) => contingentMap.containsKey(p.contingentId))
+            .toList();
 
-    contingents = participations
-        .map((p) => contingentMap[p.contingentId]!)
-        .toSet()
-        .toList();
+    contingents =
+        participations
+            .map((p) => contingentMap[p.contingentId]!)
+            .toSet()
+            .toList();
   }
 
   @override

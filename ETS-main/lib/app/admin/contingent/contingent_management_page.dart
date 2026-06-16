@@ -68,53 +68,71 @@ class _ContingentManagementPageState extends State<ContingentManagementPage> {
 
             /// Contingents List
             Expanded(
-              child: filteredContingents.isEmpty
-                  ? const EmptyStateWidget(
-                      title: 'No Contingents Found',
-                      subtitle: 'We couldn\'t find any contingents matching your search.',
-                      icon: Icons.group_off,
-                    )
-                  : ListView.builder(
-                      itemCount: filteredContingents.length,
-                      itemBuilder: (context, index) {
-                        Contingent contingent = filteredContingents[index];
-
-                        final navigateToEvents = () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder:
-                                (_) => EventsParticipatedPage(contingent: contingent),
+              child: RefreshIndicator(
+                color: AppColors.primary,
+                backgroundColor: AppColors.secondary,
+                onRefresh: () async {
+                  if (PageRefreshController.onRefresh != null) {
+                    PageRefreshController.onRefresh!();
+                  }
+                  await Future.delayed(const Duration(seconds: 1));
+                },
+                child: filteredContingents.isEmpty
+                    ? SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          alignment: Alignment.center,
+                          child: const EmptyStateWidget(
+                            title: 'No Contingents Found',
+                            subtitle: 'We couldn\'t find any contingents matching your search.',
+                            icon: Icons.group_off,
                           ),
-                        );
+                        ),
+                      )
+                    : ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: filteredContingents.length,
+                        itemBuilder: (context, index) {
+                          Contingent contingent = filteredContingents[index];
 
-                        return AnimatedCardWrapper(
-                          key: ValueKey(contingent.contingentId),
-                          child: GestureDetector(
-                            onDoubleTap: navigateToEvents,
-                            child: ContingentCard(
-                              contingent: contingent,
-                              onEdit:
-                                  () => showContingentModal(
-                                    context,
-                                    contingent: contingent,
-                                    onSubmit: (contingent) async {
-                                      await ContingentController().updateContingent(
-                                        context,
-                                        contingent,
-                                      );
-                                    },
-                                  ),
-                              onDelete: () async {
-                                await ContingentController().deleteContingent(
-                                  context,
-                                  contingent.contingentId,
-                                );
-                              },
-                              onViewEvents: navigateToEvents,
+                          final navigateToEvents = () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => EventsParticipatedPage(contingent: contingent),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+
+                          return AnimatedCardWrapper(
+                            key: ValueKey(contingent.contingentId),
+                            child: GestureDetector(
+                              onDoubleTap: navigateToEvents,
+                              child: ContingentCard(
+                                contingent: contingent,
+                                onEdit:
+                                    () => showContingentModal(
+                                      context,
+                                      contingent: contingent,
+                                      onSubmit: (contingent) async {
+                                        await ContingentController().updateContingent(
+                                          context,
+                                          contingent,
+                                        );
+                                      },
+                                    ),
+                                onDelete: () async {
+                                  await ContingentController().deleteContingent(
+                                    context,
+                                    contingent.contingentId,
+                                  );
+                                },
+                                onViewEvents: navigateToEvents,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
             ),
           ],
         );

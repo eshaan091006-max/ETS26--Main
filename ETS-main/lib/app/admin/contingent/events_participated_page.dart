@@ -62,7 +62,7 @@ class _EventsParticipatedPageState extends State<EventsParticipatedPage> {
         for (var e in events)
           DepartmentController()
               .getDepartmentById(e.departmentId.toInt())
-              ?.code
+              ?.code,
       }.whereType<String>(),
     ];
   }
@@ -100,9 +100,17 @@ class _EventsParticipatedPageState extends State<EventsParticipatedPage> {
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.textWhite,
             onPressed: () {
-              List<int> existingEventIds = participations.map((p) => p.eventId).toList();
-              List<Event> availableEvents = _eventController.events.where((e) => !existingEventIds.contains(e.eventId)).toList();
-              showAddEventBottomSheet(context, availableEvents, widget.contingent);
+              List<int> existingEventIds =
+                  participations.map((p) => p.eventId).toList();
+              List<Event> availableEvents =
+                  _eventController.events
+                      .where((e) => !existingEventIds.contains(e.eventId))
+                      .toList();
+              showAddEventBottomSheet(
+                context,
+                availableEvents,
+                widget.contingent,
+              );
             },
             child: const Icon(Icons.add),
           ),
@@ -116,7 +124,10 @@ class _EventsParticipatedPageState extends State<EventsParticipatedPage> {
             children: [
               // FILTER BAR
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 color: AppColors.secondary.withAlpha(230),
                 child: Row(
                   children: [
@@ -139,40 +150,47 @@ class _EventsParticipatedPageState extends State<EventsParticipatedPage> {
 
               // PARTICIPATION LIST
               Expanded(
-                child: filteredParticipations.isEmpty
-                    ? const EmptyStateWidget(
-                        title: 'No Participations Yet',
-                        subtitle: 'This contingent has not been added to any events matching the filters.',
-                        icon: Icons.event_note,
-                      )
-                    : ListView.builder(
-                        itemCount: filteredParticipations.length,
-                        itemBuilder: (context, index) {
-                          final p = filteredParticipations[index];
-                          final event = events.firstWhere((e) => e.eventId == p.eventId);
+                child:
+                    filteredParticipations.isEmpty
+                        ? const EmptyStateWidget(
+                          title: 'No Participations Yet',
+                          subtitle:
+                              'This contingent has not been added to any events matching the filters.',
+                          icon: Icons.event_note,
+                        )
+                        : ListView.builder(
+                          itemCount: filteredParticipations.length,
+                          itemBuilder: (context, index) {
+                            final p = filteredParticipations[index];
+                            final event = events.firstWhere(
+                              (e) => e.eventId == p.eventId,
+                            );
 
-                          return AnimatedCardWrapper(
-                            key: ValueKey(p.participationId),
-                            child: ParticipationCard(
-                              contingent: widget.contingent,
-                              participation: p,
-                              event: event,
-                              onEdit: () {
-                                showUpdateEventBottomSheet(context, [p], widget.contingent);
-                              },
-                              onDelete: () {
-                                confirmDeletionModal(
-                                  context,
-                                  'Participation',
-                                  onSubmit: () {
-                                    _participationController.deleteParticipation(context, p);
-                                  },
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
+                            return AnimatedCardWrapper(
+                              key: ValueKey(p.participationId),
+                              child: ParticipationCard(
+                                contingent: widget.contingent,
+                                participation: p,
+                                event: event,
+                                onEdit: () {
+                                  showUpdateEventBottomSheet(context, [
+                                    p,
+                                  ], widget.contingent);
+                                },
+                                onDelete: () {
+                                  confirmDeletionModal(
+                                    context,
+                                    'Participation',
+                                    onSubmit: () {
+                                      _participationController
+                                          .deleteParticipation(context, p);
+                                    },
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
               ),
             ],
           ),

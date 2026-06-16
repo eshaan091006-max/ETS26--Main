@@ -5,6 +5,7 @@ import 'package:malhar_ets/shared/controllers/event_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/shared/models/department.dart';
 import 'package:malhar_ets/shared/models/event.dart';
+import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 
 class EventsPage extends StatelessWidget {
   final Department department;
@@ -29,14 +30,25 @@ class EventsPage extends StatelessWidget {
         elevation: 0,
         title: Text('${department.code} - ${department.name}'),
       ),
-      body: ListView.builder(
-        itemCount: events.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: EventCard(event: events[index], contingent: contingent),
-          );
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        backgroundColor: AppColors.secondary,
+        onRefresh: () async {
+          if (PageRefreshController.onRefresh != null) {
+            PageRefreshController.onRefresh!();
+          }
+          await Future.delayed(const Duration(seconds: 1));
         },
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: events.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: EventCard(event: events[index], contingent: contingent),
+            );
+          },
+        ),
       ),
     );
   }

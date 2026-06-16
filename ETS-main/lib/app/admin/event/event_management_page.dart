@@ -93,31 +93,48 @@ class _EventManagementPageState extends State<EventManagementPage> {
           ),
         ),
         Expanded(
-          child: ValueListenableBuilder(
-            valueListenable: PageRefreshController.refreshNotifier,
-            builder: (_, __, ___) {
-              final events = filteredEvents();
-              return events.isEmpty
-                  ? const EmptyStateWidget(
-                      title: 'No Events Found',
-                      subtitle: 'Try adjusting your type or department filters.',
-                      icon: Icons.event_busy,
-                    )
-                  : ListView.builder(
-                      itemCount: events.length,
-                      itemBuilder: (context, index) {
-                        final event = events[index];
-                        return AnimatedCardWrapper(
-                          key: ValueKey(event.eventId),
-                          child: GestureDetector(
-                            onDoubleTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder:
-                                      (_) => ContingentsParticipatedPage(event: event),
-                                ),
-                              );
-                            },
+          child: RefreshIndicator(
+            color: AppColors.primary,
+            backgroundColor: AppColors.secondary,
+            onRefresh: () async {
+              if (PageRefreshController.onRefresh != null) {
+                PageRefreshController.onRefresh!();
+              }
+              await Future.delayed(const Duration(seconds: 1));
+            },
+            child: ValueListenableBuilder(
+              valueListenable: PageRefreshController.refreshNotifier,
+              builder: (_, __, ___) {
+                final events = filteredEvents();
+                return events.isEmpty
+                    ? SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          alignment: Alignment.center,
+                          child: const EmptyStateWidget(
+                            title: 'No Events Found',
+                            subtitle: 'Try adjusting your type or department filters.',
+                            icon: Icons.event_busy,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: events.length,
+                        itemBuilder: (context, index) {
+                          final event = events[index];
+                          return AnimatedCardWrapper(
+                            key: ValueKey(event.eventId),
+                            child: GestureDetector(
+                              onDoubleTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => ContingentsParticipatedPage(event: event),
+                                  ),
+                                );
+                              },
                             child: EventCard(
                               event: event,
                               onEdit:
@@ -140,6 +157,7 @@ class _EventManagementPageState extends State<EventManagementPage> {
             },
           ),
         ),
+      ),
       ],
     );
   }

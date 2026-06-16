@@ -116,18 +116,32 @@ class _ScoresPageState extends State<ScoresPage> {
             ),
 
             Expanded(
-              child:
-                  filtered.isEmpty
-                      ? const Center(
-                        child: Text(
-                          "No Events Found",
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 18,
+              child: RefreshIndicator(
+                color: AppColors.primary,
+                backgroundColor: AppColors.secondary,
+                onRefresh: () async {
+                  if (PageRefreshController.onRefresh != null) {
+                    PageRefreshController.onRefresh!();
+                  }
+                  await Future.delayed(const Duration(seconds: 1));
+                },
+                child: filtered.isEmpty
+                    ? SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          alignment: Alignment.center,
+                          child: const Text(
+                            "No Events Found",
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
                       )
-                      : ListView.builder(
+                    : ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
                         itemCount: filtered.length,
                         itemBuilder: (context, index) {
                           final p = filtered[index];
@@ -137,6 +151,7 @@ class _ScoresPageState extends State<ScoresPage> {
                           return ParticipationCard(participation: p, event: e);
                         },
                       ),
+              ),
             ),
           ],
         );
