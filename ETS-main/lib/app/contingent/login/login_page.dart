@@ -182,15 +182,19 @@ class _LoginPageState extends State<LoginPage> {
                         final Uri emailLaunchUri = Uri(
                           scheme: 'mailto',
                           path: 'malhar.admin@xaviers.edu.in',
-                          query:
-                              'subject=Contingent Login Query&body=Hey, I am having trouble Logging In.',
+                          queryParameters: {
+                            'subject': 'Contingent Login Query',
+                            'body': 'Hey, I am having trouble Logging In.',
+                          },
                         );
 
                         try {
-                          if (await canLaunchUrl(emailLaunchUri)) {
-                            await launchUrl(emailLaunchUri);
-                          } else {
-                            throw Exception("Mail app not available");
+                          final bool launched = await launchUrl(
+                            emailLaunchUri,
+                            mode: LaunchMode.externalApplication,
+                          );
+                          if (!launched) {
+                            throw Exception("Failed to launch email client");
                           }
                         } catch (e) {
                           if (!context.mounted) return;

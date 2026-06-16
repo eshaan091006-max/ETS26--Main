@@ -177,14 +177,19 @@ class _LoginPageState extends State<LoginPageAdmin> {
                           final Uri emailLaunchUri = Uri(
                             scheme: 'mailto',
                             path: 'malhar.admin@xaviers.edu.in',
-                            query: 'subject=Admin Registration Query&body=Hey, I am having trouble registering an Admin account.',
+                            queryParameters: {
+                              'subject': 'Admin Registration Query',
+                              'body': 'Hey, I am having trouble registering an Admin account.',
+                            },
                           );
 
                           try {
-                            if (await canLaunchUrl(emailLaunchUri)) {
-                              await launchUrl(emailLaunchUri);
-                            } else {
-                              throw Exception("Mail app not available");
+                            final bool launched = await launchUrl(
+                              emailLaunchUri,
+                              mode: LaunchMode.externalApplication,
+                            );
+                            if (!launched) {
+                              throw Exception("Failed to launch email client");
                             }
                           } catch (e) {
                             if (!context.mounted) return;
