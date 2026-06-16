@@ -260,17 +260,7 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
                             title: 'No Participations Found',
                             subtitle: 'Try adjusting your search queries or active filters.',
                             icon: Icons.how_to_vote,
-                            action: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                  horizontal: 24,
-                                ),
-                              ),
+                            action: TextButton(
                               onPressed: () {
                                 setState(() {
                                   selectedDept = 'All';
@@ -278,10 +268,10 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
                                   _searchController.clear();
                                 });
                               },
-                              child: Text(
-                                "Clear Filters",
-                                style: GoogleFonts.montserrat(
-                                  color: AppColors.black,
+                              child: const Text(
+                                "Clear Search",
+                                style: TextStyle(
+                                  color: AppColors.primary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
