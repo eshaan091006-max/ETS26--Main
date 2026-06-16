@@ -14,6 +14,7 @@ class AmbientGlowBackground extends StatefulWidget {
 class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  final ValueNotifier<double> _timeNotifier = ValueNotifier(0.0);
   final List<_Firefly> _fireflies = [];
 
   @override
@@ -23,6 +24,19 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
       vsync: this,
       duration: const Duration(seconds: 25),
     )..repeat();
+
+    double lastValue = 0.0;
+    double accumulatedValue = 0.0;
+    _controller.addListener(() {
+      double currentValue = _controller.value;
+      double delta = currentValue - lastValue;
+      if (delta < 0) {
+        delta += 1.0;
+      }
+      accumulatedValue += delta;
+      lastValue = currentValue;
+      _timeNotifier.value = accumulatedValue;
+    });
 
     // Deterministic random generation for consistent layout
     final random = Random(42);
@@ -44,6 +58,7 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
   @override
   void dispose() {
     _controller.dispose();
+    _timeNotifier.dispose();
     super.dispose();
   }
 
@@ -135,12 +150,12 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
         Positioned.fill(
           child: IgnorePointer(
             child: AnimatedBuilder(
-              animation: _controller,
+              animation: _timeNotifier,
               builder: (context, child) {
                 return CustomPaint(
                   painter: _FirefliesPainter(
                     fireflies: _fireflies,
-                    animationValue: _controller.value,
+                    animationValue: _timeNotifier.value,
                   ),
                 );
               },
