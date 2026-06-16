@@ -63,6 +63,7 @@ class _LoginPageState extends State<LoginPageAdmin> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 10),
                 Text(
                   "Admin Login",
                   style: GoogleFonts.montserrat(

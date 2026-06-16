@@ -67,6 +67,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 10),
                   Text(
                     "Contingent/PRNC Login",
                     style: GoogleFonts.montserrat(
