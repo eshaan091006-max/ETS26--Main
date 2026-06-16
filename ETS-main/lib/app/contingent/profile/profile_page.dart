@@ -16,8 +16,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ContingentPageState extends State<ProfilePage> {
-  bool _obscurePassword = true;
-
   late String code;
   late String password;
 
@@ -64,15 +62,16 @@ class _ContingentPageState extends State<ProfilePage> {
         children: [
           Icon(
             isValid ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: isValid ? Colors.green : Colors.red,
-            size: 20,
+            color: isValid ? Colors.greenAccent : Colors.redAccent,
+            size: 16,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Text(
             text,
-            style: TextStyle(
-              color: isValid ? Colors.green : Colors.red,
-              fontWeight: FontWeight.w500,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: isValid ? Colors.greenAccent.withAlpha(220) : Colors.redAccent.withAlpha(220),
+              fontWeight: isValid ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
         ],
@@ -82,8 +81,9 @@ class _ContingentPageState extends State<ProfilePage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: AppColors.secondary,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
       builder: (context) {
         return StatefulBuilder(
@@ -92,46 +92,83 @@ class _ContingentPageState extends State<ProfilePage> {
             return Padding(
               padding: MediaQuery.of(context).viewInsets,
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
-                        "Edit Contingent",
-                        style: GoogleFonts.montserrat(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
+                      // Header drag bar
+                      Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: 40,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
+                      Text(
+                        "Change Password",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
 
                       /// Code (Disabled)
                       TextField(
                         enabled: false,
                         controller: codeController,
-                        decoration: const InputDecoration(
+                        style: const TextStyle(color: Colors.white70),
+                        decoration: InputDecoration(
                           labelText: "Contingent Code",
-                          border: OutlineInputBorder(),
+                          labelStyle: const TextStyle(color: AppColors.textSecondary),
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppColors.primary.withAlpha(50)),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          prefixIcon: const Icon(Icons.fingerprint, color: AppColors.textSecondary),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
 
                       /// Password with toggle visibility
                       TextField(
                         controller: passwordController,
                         obscureText: obscurePassword,
-                        onChanged:
-                            (value) => validatePassword(value, setModalState),
+                        style: const TextStyle(color: AppColors.textWhite),
+                        onChanged: (value) => validatePassword(value, setModalState),
                         decoration: InputDecoration(
-                          labelText: "Password",
-
-                          border: const OutlineInputBorder(),
+                          labelText: "New Password",
+                          labelStyle: const TextStyle(color: AppColors.primary),
+                          prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primary),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.textSecondary),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.primary, width: 1.8),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
                               obscurePassword
                                   ? Icons.visibility
                                   : Icons.visibility_off,
+                              color: AppColors.primary,
                             ),
                             onPressed: () {
                               setModalState(() {
@@ -142,27 +179,53 @@ class _ContingentPageState extends State<ProfilePage> {
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       /// Password rules
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildRule("Min 8 characters", hasMinLength),
-                          buildRule("At least 1 uppercase letter", hasUpper),
-                          buildRule("At least 1 lowercase letter", hasLower),
-                          buildRule("At least 1 number", hasDigit),
-                          buildRule(
-                            "At least 1 special character (!@#\$&*~_)",
-                            hasSpecial,
-                          ),
-                        ],
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.black12,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white.withAlpha(15)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Password Requirements",
+                              style: GoogleFonts.montserrat(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            buildRule("Min 8 characters", hasMinLength),
+                            const SizedBox(height: 8),
+                            buildRule("At least 1 uppercase letter", hasUpper),
+                            const SizedBox(height: 8),
+                            buildRule("At least 1 lowercase letter", hasLower),
+                            const SizedBox(height: 8),
+                            buildRule("At least 1 number", hasDigit),
+                            const SizedBox(height: 8),
+                            buildRule("At least 1 special character (!@#\$&*~_)", hasSpecial),
+                          ],
+                        ),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
 
                       /// Save Button
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                         onPressed: () async {
                           if (!isPasswordValid()) {
                             AppFeedback.showError(
@@ -200,7 +263,13 @@ class _ContingentPageState extends State<ProfilePage> {
                             }
                           }
                         },
-                        child: const Text("Save"),
+                        child: Text(
+                          "Save Changes",
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -215,93 +284,176 @@ class _ContingentPageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    Color textColor = AppColors.textPrimary;
+    final initialLetter = code.isNotEmpty ? code[0].toUpperCase() : 'C';
+
     return Container(
       color: AppColors.secondary,
       child: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            LiquidGlassContainer(
-              glowColor: AppColors.accent,
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                  children: [
-                    /// Contingent Code
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.confirmation_number,
-                              color: AppColors.primary,
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              "Code:",
-                              style: GoogleFonts.montserrat(
-                                fontWeight: FontWeight.w500,
-                                color: textColor,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              code,
-                              style: GoogleFonts.montserrat(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: textColor,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        IconButton(
-                          onPressed: () => _showEditSheet(),
-                          icon: Icon(
-                            Icons.edit,
-                            semanticLabel: 'Change Password',
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    /// Password
-                    Row(
-                      children: [
-                        const Icon(Icons.lock, color: AppColors.primary),
-                        const SizedBox(width: 10),
-                        Text(
-                          "Password:",
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.w500,
-                            color: textColor,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          "••••••••",
-                          style: GoogleFonts.montserrat(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: textColor,
-                          ),
-                        ),
-                      ],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Avatar circle with golden/primary gradient border
+              Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.primary, width: 2.0),
+                  gradient: RadialGradient(
+                    colors: [
+                      AppColors.primary.withAlpha(50),
+                      AppColors.primary.withAlpha(15),
+                    ],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withAlpha(40),
+                      blurRadius: 16,
+                      spreadRadius: 2,
                     ),
                   ],
                 ),
-            ),
-          ],
+                child: Center(
+                  child: Text(
+                    initialLetter,
+                    style: GoogleFonts.cinzel(
+                      fontSize: 38,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Code title
+              Text(
+                code,
+                style: GoogleFonts.montserrat(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                  letterSpacing: 0.8,
+                ),
+              ),
+              const SizedBox(height: 4),
+              // Subtitle
+              Text(
+                "Contingent Account",
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textSecondary.withAlpha(200),
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Details card
+              LiquidGlassContainer(
+                glowColor: AppColors.accent,
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Account Details",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Divider(color: AppColors.divider, thickness: 0.8),
+                    const SizedBox(height: 16),
+
+                    // Row 1: Code
+                    _buildDetailRow(
+                      icon: Icons.fingerprint,
+                      label: "Contingent Code",
+                      value: code,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Row 2: Password
+                    _buildDetailRow(
+                      icon: Icons.lock_outline,
+                      label: "Security Password",
+                      value: "••••••••",
+                      trailing: TextButton.icon(
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(color: AppColors.primary.withAlpha(80)),
+                          ),
+                        ),
+                        onPressed: _showEditSheet,
+                        icon: const Icon(Icons.edit, size: 16),
+                        label: Text(
+                          "Change",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    Widget? trailing,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withAlpha(25),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: AppColors.primary, size: 20),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.poppins(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: GoogleFonts.montserrat(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textWhite,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (trailing != null) trailing,
+      ],
     );
   }
 }
