@@ -104,6 +104,7 @@ class _ConnectorState extends State<Connector> {
 
     return Scaffold(
       backgroundColor: AppColors.secondary,
+      extendBodyBehindAppBar: true,
       appBar: getAppBar(context, false),
       body: Container(
         decoration: const BoxDecoration(

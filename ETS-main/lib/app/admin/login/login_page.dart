@@ -39,6 +39,7 @@ class _LoginPageState extends State<LoginPageAdmin> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
       appBar: getAppBar(context, false),
       body: AmbientGlowBackground(
         child: Padding(
