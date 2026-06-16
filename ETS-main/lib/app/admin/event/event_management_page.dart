@@ -112,10 +112,25 @@ class _EventManagementPageState extends State<EventManagementPage> {
                         child: Container(
                           height: MediaQuery.of(context).size.height * 0.6,
                           alignment: Alignment.center,
-                          child: const EmptyStateWidget(
+                          child: EmptyStateWidget(
                             title: 'No Events Found',
                             subtitle: 'Try adjusting your type or department filters.',
                             icon: Icons.event_busy,
+                            action: TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  selectedDept = 'All';
+                                  selectedType = 'All';
+                                });
+                              },
+                              child: const Text(
+                                "Reset Filters",
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       )

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:malhar_ets/app/contingent/cards/participation_card.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/helpers/widgets.dart';
+import 'package:malhar_ets/helpers/empty_state_widget.dart';
 import 'package:malhar_ets/shared/controllers/department_controller.dart';
 import 'package:malhar_ets/shared/controllers/event_controller.dart';
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
@@ -125,21 +126,34 @@ class _ScoresPageState extends State<ScoresPage> {
                   }
                   await Future.delayed(const Duration(seconds: 1));
                 },
-                child: filtered.isEmpty
-                    ? SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Container(
-                          height: MediaQuery.of(context).size.height * 0.6,
-                          alignment: Alignment.center,
-                          child: const Text(
-                            "No Events Found",
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 18,
+                  child: filtered.isEmpty
+                      ? SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: Container(
+                            height: MediaQuery.of(context).size.height * 0.6,
+                            alignment: Alignment.center,
+                            child: EmptyStateWidget(
+                              title: 'No Events Found',
+                              subtitle: 'Try adjusting your type or department filters.',
+                              icon: Icons.event_busy,
+                              action: TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedDepartment = 'All';
+                                    selectedEventType = 'All';
+                                  });
+                                },
+                                child: const Text(
+                                  "Reset Filters",
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      )
+                        )
                     : ListView.builder(
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemCount: filtered.length,

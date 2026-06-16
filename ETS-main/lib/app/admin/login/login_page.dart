@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:malhar_ets/app/admin/auth/admin_controller.dart';
 import 'package:malhar_ets/app/admin/main.dart';
 import 'package:malhar_ets/constants/app_bar.dart';
@@ -170,11 +171,100 @@ class _LoginPageState extends State<LoginPageAdmin> {
                         ),
                       ),
                       TextButton(
-                        onPressed: () {
-                          // Placeholder for future Sign-Up
+                        onPressed: () async {
+                          final Uri emailLaunchUri = Uri(
+                            scheme: 'mailto',
+                            path: 'malhar.admin@xaviers.edu.in',
+                            query: 'subject=Admin Registration Query&body=Hey, I am having trouble registering an Admin account.',
+                          );
+
+                          try {
+                            if (await canLaunchUrl(emailLaunchUri)) {
+                              await launchUrl(emailLaunchUri);
+                            } else {
+                              throw Exception("Mail app not available");
+                            }
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor: AppColors.secondary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: const BorderSide(color: AppColors.border, width: 1.5),
+                                ),
+                                title: Text(
+                                  "Contact Support",
+                                  style: GoogleFonts.montserrat(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "No default email client could be launched. You can reach the admin directly at:",
+                                      style: GoogleFonts.poppins(color: AppColors.textWhite),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    SelectableText(
+                                      "malhar.admin@xaviers.edu.in",
+                                      style: GoogleFonts.poppins(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      "Close",
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Clipboard.setData(
+                                        const ClipboardData(
+                                          text: "malhar.admin@xaviers.edu.in",
+                                        ),
+                                      );
+                                      Navigator.pop(context);
+                                      AppFeedback.showSuccess(
+                                        context,
+                                        "Email address copied to clipboard!",
+                                      );
+                                    },
+                                    child: Text(
+                                      "Copy",
+                                      style: GoogleFonts.poppins(
+                                        color: AppColors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
                         },
                         child: Text(
-                          "Skill Issue",
+                          "Contact Admin",
                           style: GoogleFonts.montserrat(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,

@@ -83,10 +83,23 @@ class _ContingentManagementPageState extends State<ContingentManagementPage> {
                         child: Container(
                           height: MediaQuery.of(context).size.height * 0.6,
                           alignment: Alignment.center,
-                          child: const EmptyStateWidget(
+                          child: EmptyStateWidget(
                             title: 'No Contingents Found',
                             subtitle: 'We couldn\'t find any contingents matching your search.',
                             icon: Icons.group_off,
+                            action: TextButton(
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {});
+                              },
+                              child: const Text(
+                                "Clear Search",
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       )
