@@ -9,17 +9,19 @@ class ContingentController {
   ) async {
     try {
       final hashedPassword = HashUtil.hashPassword(password);
-      final response = await Supabase.instance.client
-          .from('contingents')
-          .select()
-          .eq('contingent_code', username)
-          .eq('password', hashedPassword);
+      final response = await Supabase.instance.client.rpc(
+        'login_contingent_rpc',
+        params: {
+          'input_code': username,
+          'input_password': hashedPassword,
+        },
+      ) as List<dynamic>;
 
       if (response.isNotEmpty) {
         return {
           "success": true,
           "message": 'Contingent Login Successful for $username!',
-          "contingent": Contingent.fromJson(response.first),
+          "contingent": Contingent.fromJson(Map<String, dynamic>.from(response.first)),
         };
       } else {
         return {"success": false, "message": "Invalid Contingent Credentials!"};

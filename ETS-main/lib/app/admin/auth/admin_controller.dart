@@ -6,14 +6,16 @@ class AdminController {
     String password,
   ) async {
     try {
-      final response = await Supabase.instance.client
-          .from('admins')
-          .select()
-          .eq('username', username)
-          .eq('password', password);
+      final response = await Supabase.instance.client.rpc(
+        'login_admin_rpc',
+        params: {
+          'input_username': username,
+          'input_password': password,
+        },
+      ) as List<dynamic>;
 
       if (response.isNotEmpty) {
-        final adminData = response.first;
+        final adminData = Map<String, dynamic>.from(response.first);
         return {
           "success": true,
           "message": 'Admin Login Successful for $username!',

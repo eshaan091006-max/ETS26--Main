@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
@@ -33,6 +34,14 @@ AppBar getAppBar(BuildContext context, bool isLoggedIn) {
     ),
     backgroundColor: Colors.transparent,
     elevation: 0,
+    flexibleSpace: ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          color: Colors.black.withAlpha(80),
+        ),
+      ),
+    ),
     actions: [
       IconButton(
         color: AppColors.primary,

@@ -151,36 +151,34 @@ Future<void> showFormLinkModal(
                                   style: TextStyle(color: AppColors.textSecondary),
                                 ),
                               )
-                            : Scrollbar(
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: filteredContingents.length,
-                                  itemBuilder: (context, index) {
-                                    final contingent = filteredContingents[index];
-                                    final isChecked = selectedContingents.contains(
-                                      contingent.contingentId,
-                                    );
-                                    return CheckboxListTile(
-                                      dense: true,
-                                      title: Text(
-                                        contingent.contingentCode,
-                                        style: const TextStyle(fontSize: 14),
-                                      ),
-                                      value: isChecked,
-                                      onChanged: (bool? val) {
-                                        setState(() {
-                                          if (val == true) {
-                                            selectedContingents.add(contingent.contingentId);
-                                          } else {
-                                            selectedContingents.remove(contingent.contingentId);
-                                          }
-                                        });
-                                      },
-                                      controlAffinity: ListTileControlAffinity.leading,
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                                    );
-                                  },
-                                ),
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: filteredContingents.length,
+                                itemBuilder: (context, index) {
+                                  final contingent = filteredContingents[index];
+                                  final isChecked = selectedContingents.contains(
+                                    contingent.contingentId,
+                                  );
+                                  return CheckboxListTile(
+                                    dense: true,
+                                    title: Text(
+                                      contingent.contingentCode,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    value: isChecked,
+                                    onChanged: (bool? val) {
+                                      setState(() {
+                                        if (val == true) {
+                                          selectedContingents.add(contingent.contingentId);
+                                        } else {
+                                          selectedContingents.remove(contingent.contingentId);
+                                        }
+                                      });
+                                    },
+                                    controlAffinity: ListTileControlAffinity.leading,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                                  );
+                                },
                               ),
                       ),
                     ],

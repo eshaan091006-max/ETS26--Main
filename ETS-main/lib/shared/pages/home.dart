@@ -68,130 +68,135 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               ),
             );
           },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Glowing Welcome Text Container with premium neon aura
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  // Radial gradient to simulate a soft ambient glowing halo behind the text
-                  gradient: RadialGradient(
-                    colors: [
-                      AppColors.accent.withOpacity(0.18),  // Purple core glow
-                      AppColors.primary.withOpacity(0.06), // Outer gold glow
-                      Colors.transparent,                  // Fades to black
-                    ],
-                    radius: 1.5,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Glowing Welcome Text Container with premium neon aura
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    // Radial gradient to simulate a soft ambient glowing halo behind the text
+                    gradient: RadialGradient(
+                      colors: [
+                        AppColors.accent.withOpacity(0.18),  // Purple core glow
+                        AppColors.primary.withOpacity(0.06), // Outer gold glow
+                        Colors.transparent,                  // Fades to black
+                      ],
+                      radius: 1.5,
+                    ),
                   ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (widget.contingent != null) ...[
-                      Text(
-                        "Welcome",
-                        style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          fontSize: 42,
-                          letterSpacing: 3.0,
-                          shadows: [
-                            Shadow(
-                              color: AppColors.primary.withOpacity(0.9), // Glowing gold
-                              blurRadius: 15,
-                            ),
-                            Shadow(
-                              color: AppColors.accent.withOpacity(0.7), // Glowing purple
-                              blurRadius: 25,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.contingent!.contingentCode,
-                        style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.primary, // Gold text
-                          fontSize: 48,
-                          letterSpacing: 2.0,
-                          shadows: [
-                            Shadow(
-                              color: AppColors.accent.withOpacity(0.9), // Purple glow
-                              blurRadius: 20,
-                            ),
-                            Shadow(
-                              color: AppColors.primary.withOpacity(0.5), // Gold glow
-                              blurRadius: 35,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ] else
-                      Text(
-                        "Admin Portal",
-                        maxLines: 2,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          fontSize: 42,
-                          letterSpacing: 2.0,
-                          shadows: [
-                            Shadow(
-                              color: AppColors.primary.withOpacity(0.9),
-                              blurRadius: 15,
-                            ),
-                            Shadow(
-                              color: AppColors.accent.withOpacity(0.7),
-                              blurRadius: 25,
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 60),
-              
-              // Central Logo area (Static with pulsating neon glow)
-              AnimatedBuilder(
-                animation: _glowController,
-                builder: (context, child) {
-                  final glowScale = 0.85 + 0.15 * _glowController.value;
-                  final opacity = 0.3 + 0.7 * _glowController.value;
-                  return Stack(
-                    alignment: Alignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Pulsating Neon Glow Background
-                      Container(
-                        width: 260 * glowScale,
-                        height: 260 * glowScale,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              const Color(0xFFB83280).withOpacity(0.4 * opacity), // Pulsating Pink core
-                              AppColors.primary.withOpacity(0.12 * opacity),       // Pulsating Gold outer
-                              Colors.transparent,
+                      if (widget.contingent != null) ...[
+                        Text(
+                          "Welcome",
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            fontSize: 42,
+                            letterSpacing: 3.0,
+                            shadows: [
+                              Shadow(
+                                color: AppColors.primary.withOpacity(0.9), // Glowing gold
+                                blurRadius: 15,
+                              ),
+                              Shadow(
+                                color: AppColors.accent.withOpacity(0.7), // Glowing purple
+                                blurRadius: 25,
+                              ),
                             ],
                           ),
                         ),
-                      ),
-                      child!,
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.contingent!.contingentCode,
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.primary, // Gold text
+                            fontSize: 48,
+                            letterSpacing: 2.0,
+                            shadows: [
+                              Shadow(
+                                color: AppColors.accent.withOpacity(0.9), // Purple glow
+                                blurRadius: 20,
+                              ),
+                              Shadow(
+                                color: AppColors.primary.withOpacity(0.5), // Gold glow
+                                blurRadius: 35,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else ...[
+                        Text(
+                          "Admin Portal",
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            fontSize: 42,
+                            letterSpacing: 2.0,
+                            shadows: [
+                              Shadow(
+                                color: AppColors.primary.withOpacity(0.9),
+                                blurRadius: 15,
+                              ),
+                              Shadow(
+                                color: AppColors.accent.withOpacity(0.7),
+                                blurRadius: 25,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
-                  );
-                },
-                child: Image.asset(
-                  'assets/logo/malhar26.png',
-                  width: 300,
-                  height: 300,
-                  filterQuality: FilterQuality.high,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 60),
+                
+                // Central Logo area (Static with pulsating neon glow)
+                AnimatedBuilder(
+                  animation: _glowController,
+                  builder: (context, child) {
+                    final glowScale = 0.85 + 0.15 * _glowController.value;
+                    final opacity = 0.3 + 0.7 * _glowController.value;
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Pulsating Neon Glow Background
+                        Container(
+                          width: 260 * glowScale,
+                          height: 260 * glowScale,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                const Color(0xFFB83280).withOpacity(0.4 * opacity), // Pulsating Pink core
+                                AppColors.primary.withOpacity(0.12 * opacity),       // Pulsating Gold outer
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                        child!,
+                      ],
+                    );
+                  },
+                  child: Image.asset(
+                    'assets/logo/malhar26.png',
+                    width: 300,
+                    height: 300,
+                    filterQuality: FilterQuality.high,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

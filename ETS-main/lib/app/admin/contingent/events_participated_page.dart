@@ -152,11 +152,26 @@ class _EventsParticipatedPageState extends State<EventsParticipatedPage> {
               Expanded(
                 child:
                     filteredParticipations.isEmpty
-                        ? const EmptyStateWidget(
+                        ? EmptyStateWidget(
                           title: 'No Participations Yet',
                           subtitle:
                               'This contingent has not been added to any events matching the filters.',
                           icon: Icons.event_note,
+                          action: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedDept = 'All';
+                                selectedType = 'All';
+                              });
+                            },
+                            child: const Text(
+                              "Clear Filters",
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         )
                         : ListView.builder(
                           itemCount: filteredParticipations.length,

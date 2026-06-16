@@ -28,13 +28,10 @@ class ContingentController {
 
   Future<void> loadContingents() async {
     try {
-      final response = await _client
-          .from('contingents')
-          .select("*")
-          .order('contingent_id', ascending: true);
+      final List<dynamic> response = await _client.rpc('get_contingent_list_rpc');
       _contingents.clear();
       _contingents.addAll(
-        response.map((json) => Contingent.fromJson(json)).toList(),
+        response.map((json) => Contingent.fromJson(Map<String, dynamic>.from(json))).toList(),
       );
     } catch (e) {
       print("Error loading contingents: $e");

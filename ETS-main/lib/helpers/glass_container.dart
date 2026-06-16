@@ -73,16 +73,19 @@ class _LiquidGlassContainerState extends State<LiquidGlassContainer> with Single
   }
 
   void _onEnter() {
+    if (!mounted) return;
     setState(() => _isHovered = true);
     _updateActiveState();
   }
 
   void _onExit() {
+    if (!mounted) return;
     setState(() => _isHovered = false);
     _updateActiveState();
   }
 
   void _onFocusChanged(bool hasFocus) {
+    if (!mounted) return;
     setState(() => _isFocused = hasFocus);
     _updateActiveState();
   }
@@ -102,7 +105,9 @@ class _LiquidGlassContainerState extends State<LiquidGlassContainer> with Single
           onTapCancel: () => _onExit(),
           onTap: () {
             _focusNode.requestFocus();
-            if (widget.onTap != null) widget.onTap!();
+            if (widget.onTap != null) {
+              Future.microtask(widget.onTap!);
+            }
           },
           child: AnimatedBuilder(
             animation: _controller,

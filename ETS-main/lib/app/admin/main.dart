@@ -1,7 +1,5 @@
-import 'dart:ui';
-
+import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
-import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:malhar_ets/app/admin/contingent/contingent_management_page.dart';
 import 'package:malhar_ets/app/admin/event/event_management_page.dart';
@@ -191,73 +189,143 @@ class _MainState extends State<Main> {
         backgroundColor: Colors.transparent,
         key: navigatorKey,
         appBar: getAppBar(context, true),
-        body: _pages[_currentIndex],
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.0, 0.05),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
+            );
+          },
+          child: KeyedSubtree(
+            key: ValueKey<int>(_currentIndex),
+            child: _pages[_currentIndex],
+          ),
+        ),
       floatingActionButton: FloatingActionButton(
         onPressed: actionList[_currentIndex],
         backgroundColor: AppColors.primary,
         child: Icon(iconList[_currentIndex], color: AppColors.textWhite),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: AnimatedBottomNavigationBar.builder(
-        itemCount: iconList.length,
-        tabBuilder: (int index, bool isActive) {
-          return TweenAnimationBuilder<double>(
-            duration: const Duration(milliseconds: 250),
-            tween: Tween<double>(begin: 0.0, end: isActive ? 1.0 : 0.0),
-            curve: Curves.easeOutCubic,
-            builder: (context, value, child) {
-              final scale = 1.0 + 0.12 * value;
-              final Color color = Color.lerp(Colors.white38, AppColors.primary, value)!;
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Transform.scale(
-                    scale: scale,
-                    child: Icon(iconList[index], size: 24, color: color),
-                  ),
-                  const SizedBox(height: 4),
-                  Transform.scale(
-                    scale: 1.0 + 0.05 * value,
-                    child: Text(
-                      labelList[index],
-                      style: TextStyle(
-                        color: color, 
-                        fontSize: 11,
-                        fontWeight: value > 0.5 ? FontWeight.w600 : FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  // Growing glowing active line indicator
-                  Container(
-                    height: 2,
-                    width: 14 * value,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withAlpha((value * 180).toInt()),
-                          blurRadius: 4,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-        activeIndex: _currentIndex,
-        backgroundColor: AppColors.secondary,
-        splashColor: AppColors.accent,
-        notchSmoothness: NotchSmoothness.softEdge,
-        gapLocation: GapLocation.center,
-        onTap: (index) => setState(() => _currentIndex = index),
-      ),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
     ),
     );
   }
+
+  Widget _buildNavItem(int index) {
+    final bool isActive = _currentIndex == index;
+    return GestureDetector(
+      onTap: () => setState(() => _currentIndex = index),
+      behavior: HitTestBehavior.opaque,
+      child: TweenAnimationBuilder<double>(
+        duration: const Duration(milliseconds: 250),
+        tween: Tween<double>(begin: 0.0, end: isActive ? 1.0 : 0.0),
+        curve: Curves.easeOutCubic,
+        builder: (context, value, child) {
+          final scale = 1.0 + 0.12 * value;
+          final Color color = Color.lerp(Colors.white38, AppColors.primary, value)!;
+          return SizedBox(
+            width: 65,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Transform.scale(
+                  scale: scale,
+                  child: Icon(iconList[index], size: 24, color: color),
+                ),
+                const SizedBox(height: 4),
+                Transform.scale(
+                  scale: 1.0 + 0.05 * value,
+                  child: Text(
+                    labelList[index],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: color, 
+                      fontSize: 10,
+                      fontWeight: value > 0.5 ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                // Growing glowing active line indicator
+                Container(
+                  height: 2,
+                  width: 14 * value,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withAlpha((value * 180).toInt()),
+                        blurRadius: 4,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+        bottom: MediaQuery.of(context).padding.bottom > 0 ? MediaQuery.of(context).padding.bottom : 16.0,
+      ),
+      child: Container(
+        height: 65,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: AppColors.primary.withAlpha(30),
+            width: 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(80),
+              blurRadius: 16,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              color: Colors.black.withAlpha(150),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildNavItem(0),
+                  _buildNavItem(1),
+                  const SizedBox(width: 48), // FAB spacing gap
+                  _buildNavItem(2),
+                  _buildNavItem(3),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
+

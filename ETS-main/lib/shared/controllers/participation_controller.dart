@@ -5,7 +5,9 @@ import 'package:malhar_ets/shared/controllers/event_controller.dart';
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/models/participation.dart';
+import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
+import 'package:malhar_ets/utils/session_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 
@@ -30,14 +32,25 @@ class ParticipationController {
 
   Future<void> loadParticipations() async {
     try {
-      final response = await _client
-          .from('participations')
-          .select("*")
-          .order('participation_id', ascending: true);
+      final session = await SessionManager.getSession();
+      List<dynamic> response = [];
+
+      if (session != null) {
+        if (session['type'] == 'contingent') {
+          final contingent = session['contingent'] as Contingent;
+          response = await _client.rpc(
+            'get_my_participations_rpc',
+            params: {'input_contingent_id': contingent.contingentId},
+          );
+        } else if (session['type'] == 'admin') {
+          response = await _client.rpc('get_all_participations_rpc');
+        }
+      }
+
       _participations.clear();
       if (response.isNotEmpty) {
         _participations.addAll(
-          response.map((json) => Participation.fromJson(json)).toList(),
+          response.map((json) => Participation.fromJson(Map<String, dynamic>.from(json))).toList(),
         );
       }
     } catch (e) {
