@@ -186,7 +186,7 @@ class _LoginPageState extends State<LoginPageAdmin> {
                           try {
                             final bool launched = await launchUrl(
                               emailLaunchUri,
-                              mode: LaunchMode.externalApplication,
+                              mode: LaunchMode.platformDefault,
                             );
                             if (!launched) {
                               throw Exception("Failed to launch email client");
