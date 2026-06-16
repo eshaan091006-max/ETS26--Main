@@ -24,6 +24,7 @@ import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/models/form_link.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
+import 'package:malhar_ets/helpers/ambient_glow_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -174,11 +175,12 @@ class _MainState extends State<Main> {
         //Null Function
       },
     ];
-    return Scaffold(
-      backgroundColor: AppColors.secondary,
-      key: navigatorKey,
-      appBar: getAppBar(context, true),
-      body: _pages[_currentIndex],
+    return AmbientGlowBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        key: navigatorKey,
+        appBar: getAppBar(context, true),
+        body: _pages[_currentIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: actionList[_currentIndex],
         backgroundColor: AppColors.primary,
@@ -244,6 +246,7 @@ class _MainState extends State<Main> {
         gapLocation: GapLocation.center,
         onTap: (index) => setState(() => _currentIndex = index),
       ),
+    ),
     );
   }
 }

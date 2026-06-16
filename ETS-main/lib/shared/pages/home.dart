@@ -55,7 +55,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.secondary, // Solid black background
+      color: Colors.transparent, // Transparent background so AmbientGlowBackground shows through
       child: Center(
         child: AnimatedBuilder(
           animation: _entranceController,
