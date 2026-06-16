@@ -42,6 +42,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
     return Scaffold(
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
@@ -66,45 +67,45 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 10),
-                  Text(
-                    "Contingent/PRNC Login",
-                    style: GoogleFonts.montserrat(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                      letterSpacing: 1.2,
+                  children: [
+                    SizedBox(height: isKeyboardOpen ? 15.0 : (MediaQuery.of(context).padding.top + kToolbarHeight + 10)),
+                    Text(
+                      "Contingent/PRNC Login",
+                      style: GoogleFonts.montserrat(
+                        fontSize: isKeyboardOpen ? 20 : 26,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                        letterSpacing: 1.2,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 40),
-                  LiquidGlassContainer(
-                    glowColor: AppColors.accent,
-                    padding: const EdgeInsets.all(24.0),
-                    child: Form(
-                      key: _formKey,
-                      child: AutofillGroup(
-                        child: Column(
-                          children: [
-                            _buildTextField(
-                              controller: _usernameController,
-                              label: "Username",
-                              hint: "Enter your username",
-                              focusNode: _usernameFocus,
-                              autofillHint: AutofillHints.username,
-                            ),
-                            const SizedBox(height: 20),
-                            _buildTextField(
-                              controller: _passwordController,
-                              label: "Password",
-                              hint: "Enter your password",
-                              obscureText: true,
-                              focusNode: _passwordFocus,
-                              autofillHint: AutofillHints.password,
-                            ),
-                            const SizedBox(height: 30),
-                            _buildGradientButton(
-                              text: "Login",
+                    SizedBox(height: isKeyboardOpen ? 15.0 : 40.0),
+                    LiquidGlassContainer(
+                      glowColor: AppColors.accent,
+                      padding: EdgeInsets.all(isKeyboardOpen ? 16.0 : 24.0),
+                      child: Form(
+                        key: _formKey,
+                        child: AutofillGroup(
+                          child: Column(
+                            children: [
+                              _buildTextField(
+                                controller: _usernameController,
+                                label: "Username",
+                                hint: "Enter your username",
+                                focusNode: _usernameFocus,
+                                autofillHint: AutofillHints.username,
+                              ),
+                              SizedBox(height: isKeyboardOpen ? 12.0 : 20.0),
+                              _buildTextField(
+                                controller: _passwordController,
+                                label: "Password",
+                                hint: "Enter your password",
+                                obscureText: true,
+                                focusNode: _passwordFocus,
+                                autofillHint: AutofillHints.password,
+                              ),
+                              SizedBox(height: isKeyboardOpen ? 16.0 : 30.0),
+                              _buildGradientButton(
+                                text: "Login",
                               onPressed: () async {
                                 if (!_formKey.currentState!.validate()) return;
 
@@ -165,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: isKeyboardOpen ? 10.0 : 20.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

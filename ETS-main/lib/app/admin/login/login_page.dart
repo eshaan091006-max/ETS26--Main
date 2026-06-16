@@ -38,6 +38,7 @@ class _LoginPageState extends State<LoginPageAdmin> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
     return Scaffold(
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
@@ -60,23 +61,23 @@ class _LoginPageState extends State<LoginPageAdmin> {
                   ),
                 );
               },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 10),
+                SizedBox(height: isKeyboardOpen ? 15.0 : (MediaQuery.of(context).padding.top + kToolbarHeight + 10)),
                 Text(
                   "Admin Login",
                   style: GoogleFonts.montserrat(
-                    fontSize: 26,
+                    fontSize: isKeyboardOpen ? 20 : 26,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                     letterSpacing: 1.2,
                   ),
                 ),
-                const SizedBox(height: 40),
+                SizedBox(height: isKeyboardOpen ? 15.0 : 40.0),
                 LiquidGlassContainer(
                   glowColor: AppColors.primary,
-                  padding: const EdgeInsets.all(24.0),
+                  padding: EdgeInsets.all(isKeyboardOpen ? 16.0 : 24.0),
                   child: Form(
                     key: _formKey,
                     child: AutofillGroup(
@@ -89,7 +90,7 @@ class _LoginPageState extends State<LoginPageAdmin> {
                             focusNode: _usernameFocus,
                             autofillHint: AutofillHints.username,
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: isKeyboardOpen ? 12.0 : 20.0),
                           _buildTextField(
                             controller: _passwordController,
                             label: "Password",
@@ -98,7 +99,7 @@ class _LoginPageState extends State<LoginPageAdmin> {
                             focusNode: _passwordFocus,
                             autofillHint: AutofillHints.password,
                           ),
-                          const SizedBox(height: 30),
+                          SizedBox(height: isKeyboardOpen ? 16.0 : 30.0),
                           _buildGradientButton(
                             text: "Login",
                             onPressed: () async {
@@ -160,7 +161,7 @@ class _LoginPageState extends State<LoginPageAdmin> {
                     ),
                   ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: isKeyboardOpen ? 10.0 : 20.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
