@@ -50,63 +50,74 @@ class _ShimmerSkeletonListState extends State<ShimmerSkeletonList>
           shrinkWrap: true,
           itemCount: widget.itemCount,
           itemBuilder: (context, index) {
+            final double paddingVal = widget.cardHeight < 140.0 ? 12.0 : 16.0;
+            final bool showLine2 = widget.cardHeight >= 140.0;
+            final bool showLine3 = widget.cardHeight >= 160.0;
+
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               height: widget.cardHeight,
               child: LiquidGlassContainer(
                 glowColor: AppColors.primary.withAlpha((_opacityAnimation.value * 255).toInt()),
                 borderRadius: 18,
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title placeholder
-                    Container(
-                      width: 140,
-                      height: 18,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha((_opacityAnimation.value * 255).toInt()),
-                        borderRadius: BorderRadius.circular(4),
+                padding: EdgeInsets.all(paddingVal),
+                child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title placeholder
+                      Container(
+                        width: 140,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha((_opacityAnimation.value * 255).toInt()),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    // Divider placeholder
-                    Container(
-                      width: double.infinity,
-                      height: 1.5,
-                      color: AppColors.divider.withAlpha((_opacityAnimation.value * 120).toInt()),
-                    ),
-                    const SizedBox(height: 16),
-                    // Line 1 placeholder
-                    Container(
-                      width: 200,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha((_opacityAnimation.value * 180).toInt()),
-                        borderRadius: BorderRadius.circular(4),
+                      SizedBox(height: widget.cardHeight < 140.0 ? 8 : 12),
+                      // Divider placeholder
+                      Container(
+                        width: double.infinity,
+                        height: 1.5,
+                        color: AppColors.divider.withAlpha((_opacityAnimation.value * 120).toInt()),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Line 2 placeholder
-                    Container(
-                      width: 120,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha((_opacityAnimation.value * 180).toInt()),
-                        borderRadius: BorderRadius.circular(4),
+                      SizedBox(height: widget.cardHeight < 140.0 ? 12 : 16),
+                      // Line 1 placeholder
+                      Container(
+                        width: 200,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha((_opacityAnimation.value * 180).toInt()),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Line 3 placeholder
-                    Container(
-                      width: 160,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha((_opacityAnimation.value * 180).toInt()),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ],
+                      if (showLine2) ...[
+                        const SizedBox(height: 8),
+                        // Line 2 placeholder
+                        Container(
+                          width: 120,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withAlpha((_opacityAnimation.value * 180).toInt()),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                      if (showLine3) ...[
+                        const SizedBox(height: 8),
+                        // Line 3 placeholder
+                        Container(
+                          width: 160,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withAlpha((_opacityAnimation.value * 180).toInt()),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             );
