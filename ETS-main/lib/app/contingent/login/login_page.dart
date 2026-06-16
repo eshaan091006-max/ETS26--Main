@@ -310,11 +310,13 @@ class _LoginPageState extends State<LoginPage> {
       onTap: () {
         if (!focusNode.hasFocus) {
           focusNode.requestFocus();
-        } else if (!kIsWeb) {
-          focusNode.unfocus();
-          Future.delayed(const Duration(milliseconds: 50), () {
-            focusNode.requestFocus();
-          });
+        } else {
+          if (!kIsWeb || defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android) {
+            focusNode.unfocus();
+            Future.delayed(const Duration(milliseconds: 50), () {
+              focusNode.requestFocus();
+            });
+          }
         }
       },
       decoration: InputDecoration(
@@ -351,7 +353,9 @@ class _LoginPageState extends State<LoginPage> {
                     setState(() {
                       _obscurePassword = !_obscurePassword;
                     });
-                    focusNode.requestFocus();
+                    Future.delayed(const Duration(milliseconds: 50), () {
+                      focusNode.requestFocus();
+                    });
                   },
                 ),
       ),
