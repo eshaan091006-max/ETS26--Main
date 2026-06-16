@@ -37,7 +37,13 @@ AppBar getAppBar(BuildContext context, bool isLoggedIn) {
       IconButton(
         color: AppColors.primary,
         tooltip: 'Refresh Page',
-        onPressed: PageRefreshController.triggerRefresh,
+        onPressed: () {
+          if (PageRefreshController.onRefresh != null) {
+            PageRefreshController.onRefresh!();
+          } else {
+            PageRefreshController.triggerRefresh();
+          }
+        },
         icon: const Icon(Icons.restart_alt_sharp),
       ),
       if (isLoggedIn)

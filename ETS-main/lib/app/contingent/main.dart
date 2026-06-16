@@ -15,6 +15,7 @@ import 'package:malhar_ets/shared/controllers/event_controller.dart';
 import 'package:malhar_ets/shared/controllers/form_link_controller.dart';
 import 'package:malhar_ets/shared/controllers/participation_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
+import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -56,11 +57,17 @@ class _MainState extends State<Main> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    PageRefreshController.onRefresh = loadData;
     initializeVars();
     loadData();
     subscribeToChannels();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    PageRefreshController.onRefresh = null;
+    super.dispose();
   }
 
   void initializeVars() {
