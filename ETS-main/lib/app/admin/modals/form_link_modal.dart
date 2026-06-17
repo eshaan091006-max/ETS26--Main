@@ -16,6 +16,8 @@ Future<void> showFormLinkModal(
   final labelController = TextEditingController(text: formLink?.label ?? '');
   final linkController = TextEditingController(text: formLink?.link ?? '');
   final searchController = TextEditingController();
+  final listScrollController = ScrollController();
+  final dialogScrollController = ScrollController();
 
   final isUpdating = formLink != null;
 
@@ -48,6 +50,7 @@ Future<void> showFormLinkModal(
               return AlertDialog(
                 title: Text(isUpdating ? 'Update Form Link' : 'Add Form Link'),
                 content: SingleChildScrollView(
+                  controller: dialogScrollController,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -104,7 +107,11 @@ Future<void> showFormLinkModal(
                           contentPadding: const EdgeInsets.symmetric(vertical: 10),
                         ),
                         onChanged: (text) {
-                          setState(() {});
+                          Future.microtask(() {
+                            if (context.mounted) {
+                              setState(() {});
+                            }
+                          });
                         },
                       ),
                       const SizedBox(height: 6),
@@ -123,13 +130,17 @@ Future<void> showFormLinkModal(
                         ),
                         value: allFilteredSelected,
                         onChanged: (bool? value) {
-                          setState(() {
-                            if (value == true) {
-                              selectedContingents.addAll(filteredContingents.map((c) => c.contingentId));
-                            } else {
-                              for (var c in filteredContingents) {
-                                selectedContingents.remove(c.contingentId);
-                              }
+                          Future.microtask(() {
+                            if (context.mounted) {
+                              setState(() {
+                                if (value == true) {
+                                  selectedContingents.addAll(filteredContingents.map((c) => c.contingentId));
+                                } else {
+                                  for (var c in filteredContingents) {
+                                    selectedContingents.remove(c.contingentId);
+                                  }
+                                }
+                              });
                             }
                           });
                         },
@@ -152,7 +163,7 @@ Future<void> showFormLinkModal(
                                 ),
                               )
                             : ListView.builder(
-                                shrinkWrap: true,
+                                controller: listScrollController,
                                 itemCount: filteredContingents.length,
                                 itemBuilder: (context, index) {
                                   final contingent = filteredContingents[index];
@@ -167,11 +178,15 @@ Future<void> showFormLinkModal(
                                     ),
                                     value: isChecked,
                                     onChanged: (bool? val) {
-                                      setState(() {
-                                        if (val == true) {
-                                          selectedContingents.add(contingent.contingentId);
-                                        } else {
-                                          selectedContingents.remove(contingent.contingentId);
+                                      Future.microtask(() {
+                                        if (context.mounted) {
+                                          setState(() {
+                                            if (val == true) {
+                                              selectedContingents.add(contingent.contingentId);
+                                            } else {
+                                              selectedContingents.remove(contingent.contingentId);
+                                            }
+                                          });
                                         }
                                       });
                                     },
@@ -231,5 +246,7 @@ Future<void> showFormLinkModal(
     labelController.dispose();
     linkController.dispose();
     searchController.dispose();
+    listScrollController.dispose();
+    dialogScrollController.dispose();
   }
 }

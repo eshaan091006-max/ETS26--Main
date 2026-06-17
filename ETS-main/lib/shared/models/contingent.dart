@@ -10,11 +10,13 @@ class Contingent {
   int contingentId;
   String contingentCode;
   String password;
+  int resetCount;
 
   Contingent({
     this.contingentId = -1,
     this.contingentCode = "NA",
     this.password = "NA",
+    this.resetCount = 3,
   });
 
   factory Contingent.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class Contingent {
       contingentId: json['contingent_id'],
       contingentCode: json['contingent_code'],
       password: json['password'],
+      resetCount: json['reset_count'] ?? 3,
     );
   }
 
@@ -29,11 +32,13 @@ class Contingent {
     "contingent_id": contingentId,
     "contingent_code": contingentCode,
     "password": password,
+    "reset_count": resetCount,
   };
 
   Map<String, dynamic> toInsertJson() => {
     "contingent_id": contingentId,
     "contingent_code": contingentCode,
     "password": password,
+    "reset_count": resetCount,
   };
 }

@@ -6,6 +6,7 @@ import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/utils/hash_util.dart';
 import 'package:malhar_ets/helpers/glass_container.dart';
+import 'package:malhar_ets/utils/session_manager.dart';
 
 class ProfilePage extends StatefulWidget {
   final Contingent contingent;
@@ -120,6 +121,16 @@ class _ContingentPageState extends State<ProfilePage> {
                           color: AppColors.textPrimary,
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Remaining Resets: ${widget.contingent.resetCount}",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: widget.contingent.resetCount <= 1 ? Colors.redAccent : Colors.white70,
+                        ),
+                      ),
                       const SizedBox(height: 24),
 
                       /// Code (Disabled)
@@ -227,6 +238,13 @@ class _ContingentPageState extends State<ProfilePage> {
                           ),
                         ),
                         onPressed: () async {
+                          if (widget.contingent.resetCount <= 0) {
+                            AppFeedback.showError(
+                              context,
+                              "Password reset limit reached. Please contact Admin.",
+                            );
+                            return;
+                          }
                           if (!isPasswordValid()) {
                             AppFeedback.showError(
                               context,
@@ -241,21 +259,26 @@ class _ContingentPageState extends State<ProfilePage> {
                           Contingent c = widget.contingent;
                           c.contingentCode = code;
                           c.password = HashUtil.hashPassword(passwordController.text);
+                          c.resetCount = c.resetCount - 1;
                           bool result = await ContingentController()
                               .updateContingent(modalContext, c);
 
                           if (modalContext.mounted) {
                             AppFeedback.hideLoading(modalContext);
                             if (result) {
-                              setState(() {
-                                code = codeController.text;
-                              });
-                              AppFeedback.showSuccess(
-                                modalContext,
-                                "Password Changed Successfully!",
-                              );
-                              Navigator.pop(modalContext);
+                              await SessionManager.saveContingentSession(c);
+                              if (modalContext.mounted) {
+                                setState(() {
+                                  code = codeController.text;
+                                });
+                                AppFeedback.showSuccess(
+                                  modalContext,
+                                  "Password Changed Successfully!",
+                                );
+                                Navigator.pop(modalContext);
+                              }
                             } else {
+                              c.resetCount = c.resetCount + 1; // Revert locally
                               AppFeedback.showError(
                                 modalContext,
                                 "Error in Changing Password.",
@@ -390,7 +413,16 @@ class _ContingentPageState extends State<ProfilePage> {
                             side: BorderSide(color: AppColors.primary.withAlpha(80)),
                           ),
                         ),
-                        onPressed: _showEditSheet,
+                        onPressed: () {
+                          if (widget.contingent.resetCount <= 0) {
+                            AppFeedback.showError(
+                              context,
+                              "Password reset limit reached. Please contact Admin.",
+                            );
+                            return;
+                          }
+                          _showEditSheet();
+                        },
                         icon: const Icon(Icons.edit, size: 16),
                         label: Text(
                           "Change",
@@ -400,6 +432,14 @@ class _ContingentPageState extends State<ProfilePage> {
                           ),
                         ),
                       ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Row 3: Remaining Resets
+                    _buildDetailRow(
+                      icon: Icons.refresh_outlined,
+                      label: "Remaining Resets",
+                      value: "${widget.contingent.resetCount} left",
                     ),
                   ],
                 ),

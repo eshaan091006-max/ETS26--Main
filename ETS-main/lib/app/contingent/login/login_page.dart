@@ -180,29 +180,33 @@ class _LoginPageState extends State<LoginPage> {
                     TextButton(
                       onPressed: () async {
                         final Uri emailLaunchUri;
-                        if (kIsWeb) {
-                          emailLaunchUri = Uri(
-                            scheme: 'https',
-                            host: 'mail.google.com',
-                            path: '/mail/',
-                            queryParameters: {
-                              'view': 'cm',
-                              'fs': '1',
-                              'to': 'malhar.admin@xaviers.edu.in',
-                              'su': 'Contingent Login Query',
-                              'body': 'Hey, I am having trouble Logging In.',
-                            },
-                          );
-                        } else {
-                          emailLaunchUri = Uri(
-                            scheme: 'mailto',
-                            path: 'malhar.admin@xaviers.edu.in',
-                            queryParameters: {
-                              'subject': 'Contingent Login Query',
-                              'body': 'Hey, I am having trouble Logging In.',
-                            },
-                          );
-                        }
+                          if (kIsWeb) {
+                            emailLaunchUri = Uri(
+                              scheme: 'https',
+                              host: 'mail.google.com',
+                              path: '/mail/',
+                              queryParameters: {
+                                'view': 'cm',
+                                'fs': '1',
+                                'to': 'malhar.admin@xaviers.edu.in',
+                                'su': 'Contingent Login Query',
+                                'body': 'Hey, I am having trouble Logging In.',
+                              },
+                            );
+                          } else if (defaultTargetPlatform == TargetPlatform.android) {
+                            emailLaunchUri = Uri.parse(
+                              "intent:#Intent;action=android.intent.action.SENDTO;category=android.intent.category.DEFAULT;data=mailto:malhar.admin@xaviers.edu.in?subject=Contingent%20Login%20Query&body=Hey,%20I%20am%20having%20trouble%20Logging%20In.;package=com.google.android.gm;end"
+                            );
+                          } else {
+                            emailLaunchUri = Uri(
+                              scheme: 'mailto',
+                              path: 'malhar.admin@xaviers.edu.in',
+                              queryParameters: {
+                                'subject': 'Contingent Login Query',
+                                'body': 'Hey, I am having trouble Logging In.',
+                              },
+                            );
+                          }
 
                         try {
                           final bool launched = await launchUrl(

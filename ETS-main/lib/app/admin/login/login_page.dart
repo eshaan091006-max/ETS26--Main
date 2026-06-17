@@ -188,6 +188,10 @@ class _LoginPageState extends State<LoginPageAdmin> {
                                 'body': 'Hey, I am having trouble registering an Admin account.',
                               },
                             );
+                          } else if (defaultTargetPlatform == TargetPlatform.android) {
+                            emailLaunchUri = Uri.parse(
+                              "intent:#Intent;action=android.intent.action.SENDTO;category=android.intent.category.DEFAULT;data=mailto:malhar.admin@xaviers.edu.in?subject=Admin%20Registration%20Query&body=Hey,%20I%20am%20having%20trouble%20registering%20an%20Admin%20account.;package=com.google.android.gm;end"
+                            );
                           } else {
                             emailLaunchUri = Uri(
                               scheme: 'mailto',

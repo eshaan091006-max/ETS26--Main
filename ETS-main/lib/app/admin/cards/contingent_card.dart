@@ -149,6 +149,7 @@ class ContingentCard extends StatelessWidget {
                                             contingentId: contingent.contingentId,
                                             contingentCode: contingent.contingentCode,
                                             password: newPasswordHash,
+                                            resetCount: 3,
                                           );
                                           final success = await ContingentController().updateContingent(context, updatedContingent);
                                           if (success) {

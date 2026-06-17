@@ -67,7 +67,7 @@ Future<void> showContingentModal(
                       // For a new contingent, hash the provided password or code as default
                       // If updating, preserve old password (unless admin resets it later)
                       final newPassword = isUpdating
-                          ? contingent!.password
+                          ? contingent.password
                           : HashUtil.hashPassword(
                               passwordController.text.isNotEmpty
                                   ? passwordController.text.trim()
@@ -81,6 +81,7 @@ Future<void> showContingentModal(
                           contingentId: contingent?.contingentId ?? 0,
                           contingentCode: codeController.text.trim(),
                           password: newPassword,
+                          resetCount: contingent?.resetCount ?? 3,
                         ),
                       );
                       
