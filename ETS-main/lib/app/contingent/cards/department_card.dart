@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/helpers/neon_container.dart';
@@ -20,8 +20,8 @@ class DepartmentCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                  Hero(
-                    tag: 'dept-name-small-${d.id}',
+                child: Hero(
+                  tag: 'dept-name-small-${d.id}',
                     child: Material(
                       type: MaterialType.transparency,
                       child: Text(
