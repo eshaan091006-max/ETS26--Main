@@ -66,17 +66,20 @@ class DepartmentCard extends StatelessWidget {
           child: Center(
             child: FittedBox(
               fit: BoxFit.scaleDown,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Hero(
-                  tag: 'dept-name-${d.id}',
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: Text(
-                      d.name,
-                      overflow: TextOverflow.ellipsis,
+            child: SizedBox(
+              width: maxWidth - 40, // 20 padding on each side
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Hero(
+                    tag: 'dept-name-${d.id}',
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: Text(
+                        d.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: titleFontSize.clamp(16.0, 32.0),
@@ -97,7 +100,8 @@ class DepartmentCard extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-              ],
+                ],
+              ),
             ),
           ),
           ),

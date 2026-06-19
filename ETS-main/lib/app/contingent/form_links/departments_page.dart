@@ -25,13 +25,8 @@ class _DepartmentsPageState extends State<DepartmentsPage> {
     return ValueListenableBuilder(
       valueListenable: PageRefreshController.refreshNotifier,
       builder: (context, _, __) {
-        final List<String> allowedCodes = ['WPA', 'LPA', 'IPA', 'ETCW', 'ETC', 'FA', 'LA'];
         final List<Department> departments = DepartmentController()
             .departments
-            .where((d) {
-              final code = d.code.trim().toUpperCase();
-              return allowedCodes.contains(code) || allowedCodes.any((a) => code.contains(a));
-            })
             .toList();
 
         if (!PageRefreshController.initialLoadCompleted || departments.isEmpty) {
