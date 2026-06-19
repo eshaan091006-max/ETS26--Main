@@ -129,22 +129,50 @@ class _EventsParticipatedPageState extends State<EventsParticipatedPage> {
                   vertical: 12,
                 ),
                 color: AppColors.secondary.withAlpha(230),
-                child: Row(
-                  children: [
-                    buildDropdown(
-                      label: 'Dept',
-                      value: selectedDept,
-                      options: departments,
-                      onChanged: (val) => setState(() => selectedDept = val!),
-                    ),
-                    const SizedBox(width: 12),
-                    buildDropdown(
-                      label: 'Type',
-                      value: selectedType,
-                      options: types,
-                      onChanged: (val) => setState(() => selectedType = val!),
-                    ),
-                  ],
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isCompact = constraints.maxWidth < 400;
+                    if (isCompact) {
+                      return Column(
+                        children: [
+                          buildDropdown(
+                            label: 'Dept',
+                            value: selectedDept,
+                            options: departments,
+                            onChanged: (val) => setState(() => selectedDept = val!),
+                            expanded: false,
+                          ),
+                          const SizedBox(height: 8),
+                          buildDropdown(
+                            label: 'Type',
+                            value: selectedType,
+                            options: types,
+                            onChanged: (val) => setState(() => selectedType = val!),
+                            expanded: false,
+                          ),
+                        ],
+                      );
+                    }
+                    return Row(
+                      children: [
+                        buildDropdown(
+                          label: 'Dept',
+                          value: selectedDept,
+                          options: departments,
+                          onChanged: (val) => setState(() => selectedDept = val!),
+                          expanded: true,
+                        ),
+                        const SizedBox(width: 12),
+                        buildDropdown(
+                          label: 'Type',
+                          value: selectedType,
+                          options: types,
+                          onChanged: (val) => setState(() => selectedType = val!),
+                          expanded: true,
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
 

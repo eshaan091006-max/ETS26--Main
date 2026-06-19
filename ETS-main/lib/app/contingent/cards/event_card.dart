@@ -105,8 +105,8 @@ class EventCard extends StatelessWidget {
                   event.elimsType == 0
                       ? "Direct Finals"
                       : event.elimsType == 1
-                          ? "Online elims + offline finals"
-                          : "Offline elims + offline finals",
+                          ? "Online Elims + Offline Finals"
+                          : "Offline Elims + Offline Finals",
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     color: Colors.white70,

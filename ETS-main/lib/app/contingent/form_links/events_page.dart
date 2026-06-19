@@ -29,7 +29,13 @@ class EventsPage extends StatelessWidget {
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
-        title: Text('${department.code} - ${department.name}'),
+        title: Hero(
+          tag: 'dept-name-${department.id}',
+          child: Material(
+            type: MaterialType.transparency,
+            child: Text('${department.code} - ${department.name}'),
+          ),
+        ),
       ),
       body: RefreshIndicator(
         color: AppColors.primary,

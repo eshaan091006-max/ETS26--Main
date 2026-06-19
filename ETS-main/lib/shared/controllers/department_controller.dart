@@ -1,6 +1,7 @@
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/shared/models/department.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:malhar_ets/utils/cache_manager.dart';
 
 class DepartmentController {
   // Singleton instance
@@ -18,16 +19,28 @@ class DepartmentController {
   List<Department> get departments => _departments;
 
   Future<void> loadDepartments() async {
+    // 1. Try loading from cache
+    try {
+      final cachedStr = await CacheManager.getCachedData(CacheManager.keyDepartments);
+      if (cachedStr != null) {
+        _departments.clear();
+        _departments.addAll(departmentFromJson(cachedStr));
+        PageRefreshController.triggerRefresh();
+      }
+    } catch (_) {}
+
     try {
       final response = await Supabase.instance.client
           .from('department')
           .select("*");
 
-      _departments.clear();
       if (response.isNotEmpty) {
+        _departments.clear();
         _departments.addAll(
           response.map((json) => Department.fromJson(json)).toList(),
         );
+        // Save to cache
+        await CacheManager.cacheData(CacheManager.keyDepartments, departmentToJson(_departments));
       }
     } catch (e) {
       print("Error loading departments: $e");

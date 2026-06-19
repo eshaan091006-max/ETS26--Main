@@ -20,7 +20,6 @@ import 'package:malhar_ets/shared/controllers/participation_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/models/form_link.dart';
-import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/helpers/ambient_glow_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -31,7 +30,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: SupabaseCredentials.url,
-    anonKey: SupabaseCredentials.anonKey,
+    publishableKey: SupabaseCredentials.anonKey,
   );
   runApp(const Root());
 }
@@ -176,7 +175,9 @@ class _MainState extends State<Main> {
             for (var link in links) {
               link.eventId = eventId;
             }
-            await FormLinkController().createMultipleFormLinks(context, links);
+            if (context.mounted) {
+              await FormLinkController().createMultipleFormLinks(context, links);
+            }
           }
         },
       ),

@@ -6,6 +6,7 @@ import 'package:malhar_ets/app/contingent/main.dart';
 import 'package:malhar_ets/app/contingent/auth/contingent_controller.dart';
 import 'package:malhar_ets/constants/app_bar.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
+import 'package:malhar_ets/helpers/page_transitions.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/utils/session_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -106,61 +107,59 @@ class _LoginPageState extends State<LoginPage> {
                               SizedBox(height: isKeyboardOpen ? 16.0 : 30.0),
                               _buildGradientButton(
                                 text: "Login",
-                              onPressed: () async {
-                                if (!_formKey.currentState!.validate()) return;
+                                onPressed: () async {
+                                  if (!_formKey.currentState!.validate()) return;
 
-                                AppFeedback.showLoading(
-                                  context,
-                                  message: 'Authenticating...',
-                                );
+                                  AppFeedback.showLoading(
+                                    context,
+                                    message: 'Authenticating...',
+                                  );
 
-                                try {
-                                  final result =
-                                      await ContingentController.loginAsContingent(
-                                        _usernameController.text,
-                                        _passwordController.text,
+                                  try {
+                                    final result =
+                                        await ContingentController.loginAsContingent(
+                                          _usernameController.text,
+                                          _passwordController.text,
+                                        );
+                                    if (!context.mounted) return;
+
+                                    AppFeedback.hideLoading(context);
+
+                                    if (result['success']) {
+                                      // Finish autofill context if used
+                                      TextInput.finishAutofillContext();
+                                      final navigator = Navigator.of(context);
+                                      await SessionManager.saveContingentSession(result['contingent']);
+
+                                      if (context.mounted) {
+                                        AppFeedback.showSuccess(
+                                          context,
+                                          result['message'],
+                                        );
+                                        navigator.pushReplacement(
+                                          LiquidPageRoute(
+                                            page: Main(
+                                              contingent: result['contingent'],
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    } else {
+                                      AppFeedback.showError(
+                                        context,
+                                        result['message'],
                                       );
-                                  if (!mounted) return;
-
-                                  AppFeedback.hideLoading(context);
-
-                                   if (result['success']) {
-                                     // Finish autofill context if used
-                                     TextInput.finishAutofillContext();
-                                     await SessionManager.saveContingentSession(result['contingent']);
-
-                                     AppFeedback.showSuccess(
-                                       context,
-                                       result['message'],
-                                     );
-
-                                     if (context.mounted) {
-                                       Navigator.pushReplacement(
-                                         context,
-                                         MaterialPageRoute(
-                                           builder:
-                                               (_) => Main(
-                                                 contingent: result['contingent'],
-                                               ),
-                                         ),
-                                       );
-                                     }
-                                   } else {
+                                    }
+                                  } catch (e) {
+                                    if (!context.mounted) return;
+                                    AppFeedback.hideLoading(context);
                                     AppFeedback.showError(
                                       context,
-                                      result['message'],
+                                      'An error occurred: $e',
                                     );
                                   }
-                                } catch (e) {
-                                  if (!mounted) return;
-                                  AppFeedback.hideLoading(context);
-                                  AppFeedback.showError(
-                                    context,
-                                    'An error occurred: $e',
-                                  );
-                                }
-                              },
-                            ),
+                                },
+                              ),
                       ],
                     ),
                   ),
@@ -180,38 +179,31 @@ class _LoginPageState extends State<LoginPage> {
                     TextButton(
                       onPressed: () async {
                         final Uri emailLaunchUri;
-                          if (kIsWeb) {
-                            emailLaunchUri = Uri(
-                              scheme: 'https',
-                              host: 'mail.google.com',
-                              path: '/mail/',
-                              queryParameters: {
-                                'view': 'cm',
-                                'fs': '1',
-                                'to': 'malhar.admin@xaviers.edu.in',
-                                'su': 'Contingent Login Query',
-                                'body': 'Hey, I am having trouble Logging In.',
-                              },
-                            );
-                          } else if (defaultTargetPlatform == TargetPlatform.android) {
-                            emailLaunchUri = Uri.parse(
-                              "intent:#Intent;action=android.intent.action.SENDTO;category=android.intent.category.DEFAULT;data=mailto:malhar.admin@xaviers.edu.in?subject=Contingent%20Login%20Query&body=Hey,%20I%20am%20having%20trouble%20Logging%20In.;package=com.google.android.gm;end"
-                            );
-                          } else {
-                            emailLaunchUri = Uri(
-                              scheme: 'mailto',
-                              path: 'malhar.admin@xaviers.edu.in',
-                              queryParameters: {
-                                'subject': 'Contingent Login Query',
-                                'body': 'Hey, I am having trouble Logging In.',
-                              },
-                            );
-                          }
+                        if (kIsWeb) {
+                          emailLaunchUri = Uri(
+                            scheme: 'https',
+                            host: 'mail.google.com',
+                            path: '/mail/',
+                            queryParameters: {
+                              'view': 'cm',
+                              'fs': '1',
+                              'to': 'malhar.admin@xaviers.edu.in',
+                              'su': 'Contingent Login Query',
+                              'body': 'Hey, I am having trouble Logging In.',
+                            },
+                          );
+                        } else {
+                          emailLaunchUri = Uri(
+                            scheme: 'mailto',
+                            path: 'malhar.admin@xaviers.edu.in',
+                            query: 'subject=Contingent%20Login%20Query&body=Hey%2C%20I%20am%20having%20trouble%20Logging%20In.',
+                          );
+                        }
 
                         try {
                           final bool launched = await launchUrl(
                             emailLaunchUri,
-                            mode: kIsWeb ? LaunchMode.externalApplication : LaunchMode.platformDefault,
+                            mode: LaunchMode.externalApplication,
                           );
                           if (!launched) {
                             throw Exception("Failed to launch email client");
@@ -461,7 +453,7 @@ class _LoginPageState extends State<LoginPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.35),
+            color: AppColors.primary.withValues(alpha: 0.35),
             blurRadius: 14,
             offset: const Offset(0, 5),
           ),

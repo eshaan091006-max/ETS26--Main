@@ -9,6 +9,7 @@ import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/models/participation.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:malhar_ets/utils/cache_manager.dart';
 
 class EventController {
   static final SupabaseClient _client = Supabase.instance.client;
@@ -29,6 +30,15 @@ class EventController {
 
   /// Load from Supabase (with dummy fallback)
   Future<void> loadEvents() async {
+    // 1. Try loading from cache
+    try {
+      final cachedStr = await CacheManager.getCachedData(CacheManager.keyEvents);
+      if (cachedStr != null) {
+        _events.value = eventFromJson(cachedStr);
+      }
+    } catch (_) {}
+
+    // 2. Fetch from Supabase
     try {
       final response = await _client
           .from('events')
@@ -37,6 +47,9 @@ class EventController {
       final List<Event> loadedEvents =
           response.map<Event>((json) => Event.fromJson(json)).toList();
       _events.value = loadedEvents;
+      
+      // 3. Save to Cache
+      await CacheManager.cacheData(CacheManager.keyEvents, eventToJson(loadedEvents));
     } catch (e) {
       print("Error loading events: $e");
     }

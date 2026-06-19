@@ -116,7 +116,7 @@ Future<void> showEventModal(
                               firstDate: DateTime(2000),
                               lastDate: DateTime(2100),
                             );
-                            if (date != null) {
+                            if (date != null && context.mounted) {
                               final time = await showTimePicker(
                                 context: context,
                                 initialTime: TimeOfDay.fromDateTime(selectedDate),
@@ -213,9 +213,9 @@ Future<void> showEventModal(
                           case 0:
                             return 'Direct Finals';
                           case 1:
-                            return 'Online elims + offline finals';
+                            return 'Online Elims + Offline Finals';
                           case 2:
-                            return 'Offline elims + offline finals';
+                            return 'Offline Elims + Offline Finals';
                           default:
                             return 'Direct Finals';
                         }

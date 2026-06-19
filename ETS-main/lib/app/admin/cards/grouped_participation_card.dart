@@ -13,6 +13,7 @@ import 'package:malhar_ets/shared/models/participation.dart';
 import 'package:malhar_ets/shared/controllers/contingent_controller.dart';
 import 'package:malhar_ets/shared/controllers/event_controller.dart';
 import 'package:malhar_ets/shared/controllers/form_link_controller.dart';
+import 'package:malhar_ets/helpers/page_transitions.dart';
 
 class GroupedParticipationCard extends StatefulWidget {
   final Contingent contingent;
@@ -130,7 +131,8 @@ class _GroupedParticipationCardState extends State<GroupedParticipationCard> {
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<Participation>(
                   value: _selectedParticipation,
-                  dropdownColor: AppColors.secondary,
+                  dropdownColor: AppColors.tertiary,
+                  borderRadius: BorderRadius.circular(12),
                   isExpanded: true,
                   icon: const Icon(Icons.arrow_drop_down, color: AppColors.primary),
                   style: GoogleFonts.poppins(color: AppColors.textPrimary, fontSize: 14),
@@ -220,9 +222,8 @@ class _GroupedParticipationCardState extends State<GroupedParticipationCard> {
                 },
                 onViewEvents: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder:
-                          (_) => EventsParticipatedPage(contingent: widget.contingent),
+                    LiquidPageRoute(
+                      page: EventsParticipatedPage(contingent: widget.contingent),
                     ),
                   );
                 },

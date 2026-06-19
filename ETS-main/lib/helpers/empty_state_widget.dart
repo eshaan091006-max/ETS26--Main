@@ -70,7 +70,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.primary.withOpacity(0.18),
+                      AppColors.primary.withValues(alpha: 0.18),
                       Colors.transparent,
                     ],
                     radius: 0.9,

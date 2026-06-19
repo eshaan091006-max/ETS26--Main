@@ -7,6 +7,7 @@ import 'package:malhar_ets/app/admin/auth/admin_controller.dart';
 import 'package:malhar_ets/app/admin/main.dart';
 import 'package:malhar_ets/constants/app_bar.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
+import 'package:malhar_ets/helpers/page_transitions.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/utils/session_manager.dart';
 import 'package:malhar_ets/helpers/glass_container.dart';
@@ -115,28 +116,27 @@ class _LoginPageState extends State<LoginPageAdmin> {
                                   _usernameController.text,
                                   _passwordController.text,
                                 );
-                                if (!mounted) return;
+                                if (!context.mounted) return;
 
                                 AppFeedback.hideLoading(context);
 
                                 if (result['success']) {
                                   TextInput.finishAutofillContext(); // ✅ End autofill
+                                  final navigator = Navigator.of(context);
                                   await SessionManager.saveAdminSession(
                                     _usernameController.text,
                                     result['is_volunteer'] ?? false,
                                   );
-                                  AppFeedback.showSuccess(
-                                    context,
-                                    result['message'],
-                                  );
                                   if (context.mounted) {
-                                    Navigator.pushReplacement(
+                                    AppFeedback.showSuccess(
                                       context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (_) => Main(
-                                              isVolunteer: result['is_volunteer'],
-                                            ),
+                                      result['message'],
+                                    );
+                                    navigator.pushReplacement(
+                                      LiquidPageRoute(
+                                        page: Main(
+                                          isVolunteer: result['is_volunteer'],
+                                        ),
                                       ),
                                     );
                                   }
@@ -147,7 +147,7 @@ class _LoginPageState extends State<LoginPageAdmin> {
                                   );
                                 }
                               } catch (e) {
-                                if (!mounted) return;
+                                if (!context.mounted) return;
                                 AppFeedback.hideLoading(context);
                                 AppFeedback.showError(
                                   context,
@@ -174,39 +174,35 @@ class _LoginPageState extends State<LoginPageAdmin> {
                       ),
                       TextButton(
                         onPressed: () async {
-                          final Uri emailLaunchUri;
-                          if (kIsWeb) {
-                            emailLaunchUri = Uri(
-                              scheme: 'https',
-                              host: 'mail.google.com',
-                              path: '/mail/',
-                              queryParameters: {
-                                'view': 'cm',
-                                'fs': '1',
-                                'to': 'malhar.admin@xaviers.edu.in',
-                                'su': 'Admin Registration Query',
-                                'body': 'Hey, I am having trouble registering an Admin account.',
-                              },
-                            );
-                          } else if (defaultTargetPlatform == TargetPlatform.android) {
-                            emailLaunchUri = Uri.parse(
-                              "intent:#Intent;action=android.intent.action.SENDTO;category=android.intent.category.DEFAULT;data=mailto:malhar.admin@xaviers.edu.in?subject=Admin%20Registration%20Query&body=Hey,%20I%20am%20having%20trouble%20registering%20an%20Admin%20account.;package=com.google.android.gm;end"
-                            );
-                          } else {
-                            emailLaunchUri = Uri(
-                              scheme: 'mailto',
-                              path: 'malhar.admin@xaviers.edu.in',
-                              queryParameters: {
-                                'subject': 'Admin Registration Query',
-                                'body': 'Hey, I am having trouble registering an Admin account.',
-                              },
-                            );
-                          }
+                           final Uri emailLaunchUri;
+                           if (kIsWeb) {
+                             emailLaunchUri = Uri(
+                               scheme: 'https',
+                               host: 'mail.google.com',
+                               path: '/mail/',
+                               queryParameters: {
+                                 'view': 'cm',
+                                 'fs': '1',
+                                 'to': 'malhar.admin@xaviers.edu.in',
+                                 'su': 'Admin Registration Query',
+                                 'body': 'Hey, I am having trouble registering an Admin account.',
+                               },
+                             );
+                           } else {
+                             emailLaunchUri = Uri(
+                               scheme: 'mailto',
+                               path: 'malhar.admin@xaviers.edu.in',
+                               queryParameters: {
+                                 'subject': 'Admin Registration Query',
+                                 'body': 'Hey, I am having trouble registering an Admin account.',
+                               },
+                             );
+                           }
 
                           try {
                             final bool launched = await launchUrl(
                               emailLaunchUri,
-                              mode: kIsWeb ? LaunchMode.externalApplication : LaunchMode.platformDefault,
+                              mode: LaunchMode.externalApplication,
                             );
                             if (!launched) {
                               throw Exception("Failed to launch email client");
@@ -452,7 +448,7 @@ class _LoginPageState extends State<LoginPageAdmin> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.35),
+              color: AppColors.primary.withValues(alpha: 0.35),
               blurRadius: 14,
               offset: const Offset(0, 5),
             ),

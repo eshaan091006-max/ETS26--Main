@@ -5,6 +5,7 @@ import 'package:malhar_ets/app/admin/modals/event_modal.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/helpers/widgets.dart';
 import 'package:malhar_ets/shared/controllers/department_controller.dart';
+import 'package:malhar_ets/helpers/page_transitions.dart';
 import 'package:malhar_ets/shared/controllers/event_controller.dart';
 import 'package:malhar_ets/shared/controllers/form_link_controller.dart';
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
@@ -76,22 +77,50 @@ class _EventManagementPageState extends State<EventManagementPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           color: Colors.black.withAlpha(13),
-          child: Row(
-            children: [
-              buildDropdown(
-                label: 'Deptartment',
-                value: selectedDept,
-                options: departments,
-                onChanged: (val) => setState(() => selectedDept = val!),
-              ),
-              const SizedBox(width: 12),
-              buildDropdown(
-                label: 'Type',
-                value: selectedType,
-                options: types,
-                onChanged: (val) => setState(() => selectedType = val!),
-              ),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isCompact = constraints.maxWidth < 400;
+              if (isCompact) {
+                return Column(
+                  children: [
+                    buildDropdown(
+                      label: 'Deptartment',
+                      value: selectedDept,
+                      options: departments,
+                      onChanged: (val) => setState(() => selectedDept = val!),
+                      expanded: false,
+                    ),
+                    const SizedBox(height: 8),
+                    buildDropdown(
+                      label: 'Type',
+                      value: selectedType,
+                      options: types,
+                      onChanged: (val) => setState(() => selectedType = val!),
+                      expanded: false,
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  buildDropdown(
+                    label: 'Deptartment',
+                    value: selectedDept,
+                    options: departments,
+                    onChanged: (val) => setState(() => selectedDept = val!),
+                    expanded: true,
+                  ),
+                  const SizedBox(width: 12),
+                  buildDropdown(
+                    label: 'Type',
+                    value: selectedType,
+                    options: types,
+                    onChanged: (val) => setState(() => selectedType = val!),
+                    expanded: true,
+                  ),
+                ],
+              );
+            },
           ),
         ),
         Expanded(
@@ -148,9 +177,8 @@ class _EventManagementPageState extends State<EventManagementPage> {
                             child: GestureDetector(
                               onDoubleTap: () {
                                 Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder:
-                                        (_) => ContingentsParticipatedPage(event: event),
+                                  LiquidPageRoute(
+                                    page: ContingentsParticipatedPage(event: event),
                                   ),
                                 );
                               },

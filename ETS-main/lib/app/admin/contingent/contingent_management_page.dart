@@ -5,6 +5,7 @@ import 'package:malhar_ets/app/admin/contingent/events_participated_page.dart';
 import 'package:malhar_ets/app/admin/modals/contingent_modal.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/shared/controllers/contingent_controller.dart';
+import 'package:malhar_ets/helpers/page_transitions.dart';
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
@@ -113,9 +114,8 @@ class _ContingentManagementPageState extends State<ContingentManagementPage> {
                           Contingent contingent = filteredContingents[index];
 
                           final navigateToEvents = () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder:
-                                  (_) => EventsParticipatedPage(contingent: contingent),
+                            LiquidPageRoute(
+                              page: EventsParticipatedPage(contingent: contingent),
                             ),
                           );
 

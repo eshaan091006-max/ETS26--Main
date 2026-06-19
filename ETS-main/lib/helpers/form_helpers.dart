@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:malhar_ets/constants/app_colors.dart';
 
 Widget buildTextField(
   TextEditingController controller,
@@ -21,6 +22,8 @@ Widget buildDropdown<T>({
 }) {
   return DropdownButtonFormField<T>(
     value: value,
+    dropdownColor: AppColors.tertiary,
+    borderRadius: BorderRadius.circular(12),
     decoration: InputDecoration(labelText: label),
     items:
         items

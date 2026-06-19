@@ -4,7 +4,7 @@ import 'package:malhar_ets/constants/app_colors.dart';
 
 final ThemeData themeData = ThemeData(
   useMaterial3: true,
-  textTheme: GoogleFonts.montserratTextTheme().apply(
+  textTheme: GoogleFonts.interTextTheme().apply(
     bodyColor: AppColors.textPrimary,
     displayColor: AppColors.textPrimary,
   ).copyWith(

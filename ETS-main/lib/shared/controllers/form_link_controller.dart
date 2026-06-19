@@ -96,15 +96,21 @@ class FormLinkController {
       print(response);
 
       if (response.isNotEmpty) {
-        AppFeedback.showSuccess(context, "Form link created successfully.");
+        if (context.mounted) {
+          AppFeedback.showSuccess(context, "Form link created successfully.");
+        }
         loadFormLinks();
         return true;
       } else {
-        AppFeedback.showError(context, "Failed to create form link.");
+        if (context.mounted) {
+          AppFeedback.showError(context, "Failed to create form link.");
+        }
         return false;
       }
     } catch (e) {
-      AppFeedback.showError(context, "Error creating form link: $e");
+      if (context.mounted) {
+        AppFeedback.showError(context, "Error creating form link: $e");
+      }
       return false;
     }
   }
@@ -123,15 +129,21 @@ class FormLinkController {
       print(response);
 
       if (response.isNotEmpty) {
-        AppFeedback.showSuccess(context, "Form links created successfully.");
+        if (context.mounted) {
+          AppFeedback.showSuccess(context, "Form links created successfully.");
+        }
         loadFormLinks();
         return true;
       } else {
-        AppFeedback.showError(context, "Failed to create form links.");
+        if (context.mounted) {
+          AppFeedback.showError(context, "Failed to create form links.");
+        }
         return false;
       }
     } catch (e) {
-      AppFeedback.showError(context, "Error creating form links: $e");
+      if (context.mounted) {
+        AppFeedback.showError(context, "Error creating form links: $e");
+      }
       return false;
     }
   }
@@ -151,19 +163,19 @@ class FormLinkController {
               .select();
 
       if (response.isNotEmpty) {
-        if (displayMsg) {
+        if (displayMsg && context.mounted) {
           AppFeedback.showSuccess(context, "Form link updated successfully.");
         }
         if (displayMsg) loadFormLinks();
         return true;
       } else {
-        if (displayMsg) {
+        if (displayMsg && context.mounted) {
           AppFeedback.showError(context, "Failed to update form link.");
         }
         return false;
       }
     } catch (e) {
-      if (displayMsg) {
+      if (displayMsg && context.mounted) {
         AppFeedback.showError(context, "Error updating form link: $e");
       }
       return false;
@@ -186,11 +198,15 @@ class FormLinkController {
             .insert(newLinks.map((f) => f.toInsertJson()).toList());
       }
 
-      AppFeedback.showSuccess(context, "Form links updated successfully.");
+      if (context.mounted) {
+        AppFeedback.showSuccess(context, "Form links updated successfully.");
+      }
       loadFormLinks();
       return true;
     } catch (e) {
-      AppFeedback.showError(context, "Error syncing form links: $e");
+      if (context.mounted) {
+        AppFeedback.showError(context, "Error syncing form links: $e");
+      }
       return false;
     }
   }
@@ -206,15 +222,21 @@ class FormLinkController {
               .select();
 
       if (response.isNotEmpty) {
-        AppFeedback.showSuccess(context, "Form link deleted successfully.");
+        if (context.mounted) {
+          AppFeedback.showSuccess(context, "Form link deleted successfully.");
+        }
         loadFormLinks();
         return true;
       } else {
-        AppFeedback.showError(context, "Failed to delete form link.");
+        if (context.mounted) {
+          AppFeedback.showError(context, "Failed to delete form link.");
+        }
         return false;
       }
     } catch (e) {
-      AppFeedback.showError(context, "Error deleting form link: $e");
+      if (context.mounted) {
+        AppFeedback.showError(context, "Error deleting form link: $e");
+      }
       return false;
     }
   }

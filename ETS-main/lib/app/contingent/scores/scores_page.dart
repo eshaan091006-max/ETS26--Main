@@ -93,27 +93,54 @@ class _ScoresPageState extends State<ScoresPage> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                children: [
-                  /// Department Dropdown
-                  buildDropdown(
-                    label: 'Department',
-                    value: selectedDepartment,
-                    options: getDepartments(),
-                    onChanged:
-                        (val) => setState(() => selectedDepartment = val!),
-                  ),
-                  const SizedBox(width: 12),
-
-                  /// Event Type Dropdown
-                  buildDropdown(
-                    label: 'Event Type',
-                    value: selectedEventType,
-                    options: getEventTypes(),
-                    onChanged:
-                        (val) => setState(() => selectedEventType = val!),
-                  ),
-                ],
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isCompact = constraints.maxWidth < 400;
+                  if (isCompact) {
+                    return Column(
+                      children: [
+                        buildDropdown(
+                          label: 'Department',
+                          value: selectedDepartment,
+                          options: getDepartments(),
+                          onChanged:
+                              (val) => setState(() => selectedDepartment = val!),
+                          expanded: false,
+                        ),
+                        const SizedBox(height: 8),
+                        buildDropdown(
+                          label: 'Event Type',
+                          value: selectedEventType,
+                          options: getEventTypes(),
+                          onChanged:
+                              (val) => setState(() => selectedEventType = val!),
+                          expanded: false,
+                        ),
+                      ],
+                    );
+                  }
+                  return Row(
+                    children: [
+                      buildDropdown(
+                        label: 'Department',
+                        value: selectedDepartment,
+                        options: getDepartments(),
+                        onChanged:
+                            (val) => setState(() => selectedDepartment = val!),
+                        expanded: true,
+                      ),
+                      const SizedBox(width: 12),
+                      buildDropdown(
+                        label: 'Event Type',
+                        value: selectedEventType,
+                        options: getEventTypes(),
+                        onChanged:
+                            (val) => setState(() => selectedEventType = val!),
+                        expanded: true,
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:malhar_ets/app/contingent/cards/event_card.dart';
-import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/helpers/neon_container.dart';
 import 'package:malhar_ets/shared/models/participation.dart';
 import 'package:malhar_ets/shared/models/event.dart';

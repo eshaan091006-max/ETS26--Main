@@ -37,7 +37,7 @@ class _GlowingSearchFieldState extends State<GlowingSearchField> {
           boxShadow: _hasFocus
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.22),
+                    color: AppColors.primary.withValues(alpha: 0.22),
                     blurRadius: 12,
                     spreadRadius: 1.5,
                   ),

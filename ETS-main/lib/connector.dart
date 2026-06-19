@@ -8,6 +8,8 @@ import 'package:malhar_ets/helpers/glass_container.dart';
 import 'package:malhar_ets/utils/session_manager.dart';
 import 'package:malhar_ets/app/admin/main.dart' as admin_main;
 import 'package:malhar_ets/app/contingent/main.dart' as contingent_main;
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:malhar_ets/helpers/page_transitions.dart';
 
 class Connector extends StatefulWidget {
   const Connector({super.key});
@@ -31,16 +33,16 @@ class _ConnectorState extends State<Connector> {
       if (mounted) {
         if (session['type'] == 'admin') {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => admin_main.Main(
+            LiquidPageRoute(
+              page: admin_main.Main(
                 isVolunteer: session['is_volunteer'],
               ),
             ),
           );
         } else if (session['type'] == 'contingent') {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => contingent_main.Main(
+            LiquidPageRoute(
+              page: contingent_main.Main(
                 contingent: session['contingent'],
               ),
             ),
@@ -79,18 +81,9 @@ class _ConnectorState extends State<Connector> {
                   ],
                 ),
                 child: ClipOval(
-                  child: Image.asset(
-                    'assets/logo/malhar26.png',
+                  child: SvgPicture.asset(
+                    'assets/logo/malhar26_logo.svg',
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(
-                          Icons.flutter_dash,
-                          size: 100,
-                          color: AppColors.primary,
-                        ),
-                      );
-                    },
                   ),
                 ),
               ),
@@ -157,19 +150,9 @@ class _ConnectorState extends State<Connector> {
                         ],
                       ),
                       child: ClipOval(
-                        child: Image.asset(
-                          'assets/logo/malhar26.png',
+                        child: SvgPicture.asset(
+                          'assets/logo/malhar26_logo.svg',
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            // Fallback if file doesn't exist yet
-                            return const Center(
-                              child: Icon(
-                                Icons.flutter_dash,
-                                size: 100,
-                                color: AppColors.primary,
-                              ),
-                            );
-                          },
                         ),
                       ),
                     ),
@@ -214,7 +197,7 @@ class _ConnectorState extends State<Connector> {
                         children: [
                           LiquidGlassContainer(
                             onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const LoginPage()),
+                              LiquidPageRoute(page: const LoginPage()),
                             ),
                             glowColor: AppColors.accent,
                             borderRadius: 14,
@@ -234,7 +217,7 @@ class _ConnectorState extends State<Connector> {
                           const SizedBox(height: 24),
                           LiquidGlassContainer(
                             onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const LoginPageAdmin()),
+                              LiquidPageRoute(page: const LoginPageAdmin()),
                             ),
                             glowColor: AppColors.primary,
                             borderRadius: 14,

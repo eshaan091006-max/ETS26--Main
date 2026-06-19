@@ -15,6 +15,9 @@ import 'package:malhar_ets/helpers/animated_card_wrapper.dart';
 import 'package:malhar_ets/helpers/empty_state_widget.dart';
 import 'package:malhar_ets/helpers/glowing_search_field.dart';
 import 'package:malhar_ets/helpers/shimmer_skeleton.dart';
+import 'package:csv/csv.dart';
+import 'package:file_saver/file_saver.dart';
+import 'dart:typed_data';
 
 class ParticipationManagementPage extends StatefulWidget {
   const ParticipationManagementPage({super.key});
@@ -125,6 +128,67 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
     );
   }
 
+  Future<void> _exportCSV() async {
+    final filtered = getFilteredParticipations();
+    List<List<dynamic>> rows = [];
+    rows.add([
+      "Contingent Code",
+      "Event Name",
+      "Department",
+      "Marks Scored",
+      "Status"
+    ]);
+
+    for (var p in filtered) {
+      final contingent = _contingentController.getContingentById(p.contingentId);
+      final event = EventController().getEventById(p.eventId);
+      if (contingent == null || event == null) continue;
+
+      final dept = DepartmentController().getDepartmentById(event.departmentId.toInt());
+      final isMarked = p.marksScored != -1 ? "Marked" : "Unmarked";
+      
+      rows.add([
+        contingent.contingentCode,
+        event.eventName,
+        dept?.name ?? '',
+        p.marksScored,
+        isMarked
+      ]);
+    }
+
+    String csvStr = rows.map((row) => row.map((item) => '"${item.toString().replaceAll('"', '""')}"').join(',')).join('\n');
+    Uint8List bytes = Uint8List.fromList(csvStr.codeUnits);
+    
+    await FileSaver.instance.saveFile(
+      name: 'malhar_scores',
+      bytes: bytes,
+      fileExtension: 'csv',
+      mimeType: MimeType.csv,
+    );
+  }
+
+  Widget _buildCsvExportButton(BuildContext context) {
+    return Container(
+      height: 48,
+      width: 48,
+      decoration: BoxDecoration(
+        color: AppColors.secondary,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.border.withValues(alpha: 0.3),
+          width: 1.0,
+        ),
+      ),
+      child: IconButton(
+        icon: const Icon(
+          Icons.download,
+          color: AppColors.textWhite,
+        ),
+        onPressed: _exportCSV,
+      ),
+    );
+  }
+
   Widget _buildFilterButton(BuildContext context) {
     int activeFiltersCount = 0;
     if (selectedDept != 'All') activeFiltersCount++;
@@ -228,6 +292,8 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
                       },
                     ),
                   ),
+                  const SizedBox(width: 12),
+                  _buildCsvExportButton(context),
                   const SizedBox(width: 12),
                   _buildFilterButton(context),
                 ],

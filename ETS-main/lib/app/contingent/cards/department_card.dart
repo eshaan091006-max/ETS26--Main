@@ -20,15 +20,21 @@ class DepartmentCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  d.name,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                  Hero(
+                    tag: 'dept-name-small-${d.id}',
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: Text(
+                        d.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
               ),
               const SizedBox(width: 8),
               Text(
@@ -57,31 +63,41 @@ class DepartmentCard extends StatelessWidget {
         return NeonContainer(
           borderRadius: 35.0,
           padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                d.name,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: titleFontSize.clamp(16.0, 32.0),
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Hero(
+                  tag: 'dept-name-${d.id}',
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Text(
+                      d.name,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: titleFontSize.clamp(16.0, 32.0),
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                d.code,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.cinzel(
-                  fontSize: codeFontSize.clamp(32.0, 96.0),
-                  color: AppColors.accent,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 16),
+                Text(
+                  d.code,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.cinzel(
+                    fontSize: codeFontSize.clamp(32.0, 96.0),
+                    color: AppColors.accent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

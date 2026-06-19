@@ -16,6 +16,12 @@ class AdminController {
 
       if (response.isNotEmpty) {
         final adminData = Map<String, dynamic>.from(response.first);
+        
+        // Set the custom JWT session for Supabase
+        if (adminData.containsKey('token') && adminData['token'] != null) {
+          await Supabase.instance.client.auth.setSession(adminData['token']);
+        }
+        
         return {
           "success": true,
           "message": 'Admin Login Successful for $username!',

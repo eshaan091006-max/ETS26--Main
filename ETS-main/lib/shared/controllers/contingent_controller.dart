@@ -7,6 +7,7 @@ import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:malhar_ets/utils/cache_manager.dart';
 
 class ContingentController {
   static final SupabaseClient _client = Supabase.instance.client;
@@ -27,12 +28,24 @@ class ContingentController {
   List<Contingent> get contingents => _contingents;
 
   Future<void> loadContingents() async {
+    // 1. Try loading from cache
+    try {
+      final cachedStr = await CacheManager.getCachedData(CacheManager.keyContingents);
+      if (cachedStr != null) {
+        _contingents.clear();
+        _contingents.addAll(contingentFromJson(cachedStr));
+        PageRefreshController.triggerRefresh();
+      }
+    } catch (_) {}
+
     try {
       final List<dynamic> response = await _client.rpc('get_contingent_list_rpc');
       _contingents.clear();
       _contingents.addAll(
         response.map((json) => Contingent.fromJson(Map<String, dynamic>.from(json))).toList(),
       );
+      // Save to cache
+      await CacheManager.cacheData(CacheManager.keyContingents, contingentToJson(_contingents));
     } catch (e) {
       print("Error loading contingents: $e");
     } finally {

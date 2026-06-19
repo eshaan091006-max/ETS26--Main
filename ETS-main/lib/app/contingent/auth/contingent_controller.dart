@@ -18,10 +18,17 @@ class ContingentController {
       ) as List<dynamic>;
 
       if (response.isNotEmpty) {
+        final contingentData = Map<String, dynamic>.from(response.first);
+        
+        // Set the custom JWT session for Supabase
+        if (contingentData.containsKey('token') && contingentData['token'] != null) {
+          await Supabase.instance.client.auth.setSession(contingentData['token']);
+        }
+
         return {
           "success": true,
           "message": 'Contingent Login Successful for $username!',
-          "contingent": Contingent.fromJson(Map<String, dynamic>.from(response.first)),
+          "contingent": Contingent.fromJson(contingentData),
         };
       } else {
         return {"success": false, "message": "Invalid Contingent Credentials!"};

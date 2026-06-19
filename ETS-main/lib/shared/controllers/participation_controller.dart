@@ -9,6 +9,7 @@ import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/utils/session_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:malhar_ets/utils/cache_manager.dart';
 import 'dart:async';
 
 class ParticipationController {
@@ -31,6 +32,16 @@ class ParticipationController {
   List<Participation> get participations => _participations;
 
   Future<void> loadParticipations() async {
+    // 1. Try loading from cache
+    try {
+      final cachedStr = await CacheManager.getCachedData(CacheManager.keyParticipations);
+      if (cachedStr != null) {
+        _participations.clear();
+        _participations.addAll(participationFromJson(cachedStr));
+        PageRefreshController.triggerRefresh();
+      }
+    } catch (_) {}
+
     try {
       final session = await SessionManager.getSession();
       List<dynamic> response = [];
@@ -47,11 +58,13 @@ class ParticipationController {
         }
       }
 
-      _participations.clear();
       if (response.isNotEmpty) {
+        _participations.clear();
         _participations.addAll(
           response.map((json) => Participation.fromJson(Map<String, dynamic>.from(json))).toList(),
         );
+        // Save to cache
+        await CacheManager.cacheData(CacheManager.keyParticipations, participationToJson(_participations));
       }
     } catch (e) {
       print("Error loading participations: $e");

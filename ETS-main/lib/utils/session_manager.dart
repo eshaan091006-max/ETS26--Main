@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SessionManager {
   static const String _keyUserType = 'user_type'; // 'admin' or 'contingent'
@@ -30,6 +31,13 @@ class SessionManager {
     await prefs.remove(_keyAdminUsername);
     await prefs.remove(_keyAdminIsVolunteer);
     await prefs.remove(_keyContingentJson);
+    
+    // Clear Supabase session as well
+    try {
+      await Supabase.instance.client.auth.signOut();
+    } catch (e) {
+      // Ignored if not signed in
+    }
   }
 
   // Get Session Details

@@ -2,7 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
+import 'package:malhar_ets/helpers/page_transitions.dart';
 import 'package:malhar_ets/constants/confirm_dialog.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 // import 'dart:io';
 // import 'package:image/image.dart' as img;
@@ -18,10 +20,9 @@ AppBar getAppBar(BuildContext context, bool isLoggedIn) {
         ? null
         : Padding(
             padding: const EdgeInsets.all(5),
-            child: Image.asset(
-              'assets/logo/malhar26.png',
+            child: SvgPicture.asset(
+              'assets/logo/malhar26_logo.svg',
               fit: BoxFit.contain,
-              filterQuality: FilterQuality.high,
             ),
           ),
     title: Text(
@@ -68,7 +69,7 @@ AppBar getAppBar(BuildContext context, bool isLoggedIn) {
                   await SessionManager.clearSession();
                   if (context.mounted) {
                     Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const Connector()),
+                      LiquidPageRoute(page: const Connector()),
                       (route) => false,
                     );
                   }

@@ -56,16 +56,18 @@ class FormLinksCard extends StatelessWidget {
                         if (uri != null && await canLaunchUrl(uri)) {
                           launchUrl(uri);
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Invalid URL')),
-                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Invalid URL')),
+                            );
+                          }
                         }
                       },
                       borderRadius: BorderRadius.circular(14),
                       splashColor: AppColors.accent.withAlpha(50),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.07),
+                          color: AppColors.primary.withValues(alpha: 0.07),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: AppColors.accent.withAlpha(70),

@@ -127,8 +127,8 @@ class _EventCardState extends State<EventCard> {
               event.elimsType == 0
                   ? "Direct Finals"
                   : event.elimsType == 1
-                      ? "Online elims + offline finals"
-                      : "Offline elims + offline finals",
+                      ? "Online Elims + Offline Finals"
+                      : "Offline Elims + Offline Finals",
             ),
 
             const SizedBox(height: 12),

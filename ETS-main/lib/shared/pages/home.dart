@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Home extends StatefulWidget {
   final Contingent? contingent;
@@ -82,8 +83,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     // Radial gradient to simulate a soft ambient glowing halo behind the text
                     gradient: RadialGradient(
                       colors: [
-                        AppColors.accent.withOpacity(0.18),  // Purple core glow
-                        AppColors.primary.withOpacity(0.06), // Outer gold glow
+                        AppColors.accent.withValues(alpha: 0.18),  // Purple core glow
+                        AppColors.primary.withValues(alpha: 0.06), // Outer gold glow
                         Colors.transparent,                  // Fades to black
                       ],
                       radius: 1.5,
@@ -102,11 +103,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             letterSpacing: 3.0,
                             shadows: [
                               Shadow(
-                                color: AppColors.primary.withOpacity(0.9), // Glowing gold
+                                color: AppColors.primary.withValues(alpha: 0.9), // Glowing gold
                                 blurRadius: 15,
                               ),
                               Shadow(
-                                color: AppColors.accent.withOpacity(0.7), // Glowing purple
+                                color: AppColors.accent.withValues(alpha: 0.7), // Glowing purple
                                 blurRadius: 25,
                               ),
                             ],
@@ -122,11 +123,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             letterSpacing: 2.0,
                             shadows: [
                               Shadow(
-                                color: AppColors.accent.withOpacity(0.9), // Purple glow
+                                color: AppColors.accent.withValues(alpha: 0.9), // Purple glow
                                 blurRadius: 20,
                               ),
                               Shadow(
-                                color: AppColors.primary.withOpacity(0.5), // Gold glow
+                                color: AppColors.primary.withValues(alpha: 0.5), // Gold glow
                                 blurRadius: 35,
                               ),
                             ],
@@ -144,11 +145,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             letterSpacing: 2.0,
                             shadows: [
                               Shadow(
-                                color: AppColors.primary.withOpacity(0.9),
+                                color: AppColors.primary.withValues(alpha: 0.9),
                                 blurRadius: 15,
                               ),
                               Shadow(
-                                color: AppColors.accent.withOpacity(0.7),
+                                color: AppColors.accent.withValues(alpha: 0.7),
                                 blurRadius: 25,
                               ),
                             ],
@@ -177,8 +178,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                const Color(0xFFB83280).withOpacity(0.4 * opacity), // Pulsating Pink core
-                                AppColors.primary.withOpacity(0.12 * opacity),       // Pulsating Gold outer
+                                const Color(0xFFB83280).withValues(alpha: 0.4 * opacity), // Pulsating Pink core
+                                AppColors.primary.withValues(alpha: 0.12 * opacity),       // Pulsating Gold outer
                                 Colors.transparent,
                               ],
                             ),
@@ -188,11 +189,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       ],
                     );
                   },
-                  child: Image.asset(
-                    'assets/logo/malhar26.png',
+                  child: SvgPicture.asset(
+                    'assets/logo/malhar26_logo.svg',
                     width: 300,
                     height: 300,
-                    filterQuality: FilterQuality.high,
                   ),
                 ),
               ],
