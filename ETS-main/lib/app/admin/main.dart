@@ -9,7 +9,6 @@ import 'package:malhar_ets/constants/supabase/credentials.dart';
 import 'package:malhar_ets/shared/pages/home.dart';
 import 'package:malhar_ets/app/admin/modals/contingent_modal.dart';
 import 'package:malhar_ets/app/admin/modals/event_modal.dart';
-import 'package:malhar_ets/app/admin/analytics/analytics_page.dart';
 import 'package:malhar_ets/app/admin/participation/participation_management_page.dart';
 import 'package:malhar_ets/constants/app_bar.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
@@ -104,7 +103,6 @@ class _MainState extends State<Main> {
           : ContingentManagementPage(),
       EventManagementPage(),
       ParticipationManagementPage(),
-      const AnalyticsPage(),
     ]);
     PageRefreshController.onRefresh = loadData;
     super.initState();
@@ -151,10 +149,9 @@ class _MainState extends State<Main> {
     Icons.group,
     Icons.event,
     Icons.how_to_vote,
-    Icons.insights,
   ];
 
-  final labelList = <String>['Home', 'Contingent', 'Event', 'Participation', 'Analytics'];
+  final labelList = <String>['Home', 'Contingent', 'Event', 'Participation'];
 
   @override
   Widget build(BuildContext context) {
@@ -184,8 +181,6 @@ class _MainState extends State<Main> {
         },
       ),
       // Participation (no FAB action)
-      () {},
-      // Analytics (no FAB action)
       () {},
     ];return AmbientGlowBackground(
       child: Scaffold(
@@ -315,14 +310,26 @@ class _MainState extends State<Main> {
             child: Container(
               color: Colors.black.withAlpha(150),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildNavItem(0),
-                  _buildNavItem(1),
-                  const SizedBox(width: 48), // FAB spacing gap
-                  _buildNavItem(2),
-                  _buildNavItem(3),
-                  _buildNavItem(4),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildNavItem(0),
+                        _buildNavItem(1),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 56), // FAB spacing gap (perfectly centered now)
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildNavItem(2),
+                        _buildNavItem(3),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

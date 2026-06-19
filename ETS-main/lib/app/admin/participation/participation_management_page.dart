@@ -18,6 +18,8 @@ import 'package:malhar_ets/helpers/shimmer_skeleton.dart';
 import 'package:csv/csv.dart';
 import 'package:file_saver/file_saver.dart';
 import 'dart:typed_data';
+import 'package:malhar_ets/helpers/page_transitions.dart';
+import 'package:malhar_ets/app/admin/analytics/analytics_page.dart';
 
 class ParticipationManagementPage extends StatefulWidget {
   const ParticipationManagementPage({super.key});
@@ -247,6 +249,95 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
     );
   }
 
+  Widget _buildAnalyticsButton(BuildContext context) {
+    return Container(
+      height: 48,
+      width: 48,
+      decoration: BoxDecoration(
+        color: AppColors.secondary,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.border.withValues(alpha: 0.3),
+          width: 1.0,
+        ),
+      ),
+      child: IconButton(
+        tooltip: 'View Analytics',
+        icon: const Icon(
+          Icons.insights,
+          color: AppColors.textWhite,
+        ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            LiquidPageRoute(page: const AnalyticsPage()),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildActiveFiltersRow() {
+    final bool hasDeptFilter = selectedDept != 'All';
+    final bool hasContingentFilter = selectedContingent != 'All';
+
+    if (!hasDeptFilter && !hasContingentFilter) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      height: 40,
+      margin: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          if (hasDeptFilter)
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: InputChip(
+                label: Text(
+                  'Dept: $selectedDept',
+                  style: const TextStyle(color: AppColors.textWhite, fontSize: 12),
+                ),
+                backgroundColor: AppColors.secondary,
+                deleteIconColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: const BorderSide(color: AppColors.divider),
+                ),
+                onDeleted: () {
+                  setState(() {
+                    selectedDept = 'All';
+                  });
+                },
+              ),
+            ),
+          if (hasContingentFilter)
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: InputChip(
+                label: Text(
+                  'Contingent: $selectedContingent',
+                  style: const TextStyle(color: AppColors.textWhite, fontSize: 12),
+                ),
+                backgroundColor: AppColors.secondary,
+                deleteIconColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: const BorderSide(color: AppColors.divider),
+                ),
+                onDeleted: () {
+                  setState(() {
+                    selectedContingent = 'All';
+                  });
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
@@ -293,12 +384,15 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  _buildCsvExportButton(context),
-                  const SizedBox(width: 12),
                   _buildFilterButton(context),
+                  const SizedBox(width: 12),
+                  _buildAnalyticsButton(context),
+                  const SizedBox(width: 12),
+                  _buildCsvExportButton(context),
                 ],
               ),
             ),
+            _buildActiveFiltersRow(),
             !PageRefreshController.initialLoadCompleted
                 ? const Expanded(
                     child: ShimmerSkeletonList(

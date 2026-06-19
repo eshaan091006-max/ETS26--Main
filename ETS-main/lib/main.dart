@@ -3,6 +3,7 @@ import 'package:malhar_ets/connector.dart';
 import 'package:malhar_ets/constants/app_theme.dart';
 import 'package:malhar_ets/constants/supabase/credentials.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:malhar_ets/utils/sync_manager.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,6 +11,7 @@ Future<void> main() async {
     url: SupabaseCredentials.url,
     publishableKey: SupabaseCredentials.anonKey,
   );
+  SyncManager.initialize();
   runApp(const Root());
 }
 

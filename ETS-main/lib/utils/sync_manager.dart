@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -6,6 +7,26 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SyncManager {
   static const String _queueKey = 'offline_sync_queue';
   static bool _isSyncing = false;
+  static StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+
+  static void initialize() {
+    // 1. Flush any pending items on startup
+    flushQueue();
+
+    // 2. Listen for connectivity changes
+    _connectivitySubscription?.cancel();
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+      if (!results.contains(ConnectivityResult.none)) {
+        print('Connection restored! Flushing sync queue...');
+        flushQueue();
+      }
+    });
+  }
+
+  static void dispose() {
+    _connectivitySubscription?.cancel();
+    _connectivitySubscription = null;
+  }
 
   static Future<void> addToQueue(String table, String action, Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();

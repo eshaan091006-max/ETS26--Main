@@ -103,16 +103,19 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
             )!;
 
             // Orb 1 (Gold/Primary) - Elliptical motion in top-right
-            final orb1X = size.width * 0.5 + sin(pathT) * 90;
-            final orb1Y = size.height * 0.15 + cos(pathT) * 70;
+            final orb1Scale = 1.0 + 0.15 * sin(t * 0.5);
+            final orb1X = size.width * 0.45 + sin(pathT) * 160;
+            final orb1Y = size.height * 0.12 + cos(pathT) * 130;
 
             // Orb 2 (Purple/Accent) - Elliptical motion in bottom-left
-            final orb2X = size.width * 0.05 + cos(pathT + pi / 2) * 100;
-            final orb2Y = size.height * 0.55 + sin(pathT + pi / 2) * 80;
+            final orb2Scale = 1.0 + 0.12 * cos(t * 0.7);
+            final orb2X = size.width * 0.05 + cos(pathT + pi / 2) * 170;
+            final orb2Y = size.height * 0.5 + sin(pathT + pi / 2) * 140;
 
             // Orb 3 (Deep Purple) - Smooth oscillation in center-right
-            final orb3X = size.width * 0.4 + sin(pathT * 1.3) * 60;
-            final orb3Y = size.height * 0.4 + cos(pathT * 1.3) * 60;
+            final orb3Scale = 1.0 + 0.18 * sin(t * 0.3);
+            final orb3X = size.width * 0.35 + sin(pathT * 1.3) * 140;
+            final orb3Y = size.height * 0.35 + cos(pathT * 1.3) * 140;
 
             return Stack(
               children: [
@@ -121,11 +124,11 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
                   left: orb1X,
                   top: orb1Y,
                   child: Container(
-                    width: 280,
-                    height: 280,
+                    width: 280 * orb1Scale,
+                    height: 280 * orb1Scale,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: orb1Color.withValues(alpha: 0.08),
+                      color: orb1Color.withValues(alpha: 0.18),
                     ),
                   ),
                 ),
@@ -134,11 +137,11 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
                   left: orb2X,
                   top: orb2Y,
                   child: Container(
-                    width: 320,
-                    height: 320,
+                    width: 320 * orb2Scale,
+                    height: 320 * orb2Scale,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: orb2Color.withValues(alpha: 0.08),
+                      color: orb2Color.withValues(alpha: 0.18),
                     ),
                   ),
                 ),
@@ -147,11 +150,11 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
                   left: orb3X,
                   top: orb3Y,
                   child: Container(
-                    width: 340,
-                    height: 340,
+                    width: 340 * orb3Scale,
+                    height: 340 * orb3Scale,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: orb3Color.withValues(alpha: 0.12),
+                      color: orb3Color.withValues(alpha: 0.22),
                     ),
                   ),
                 ),
@@ -164,7 +167,7 @@ class _AmbientGlowBackgroundState extends State<AmbientGlowBackground>
         Positioned.fill(
           child: IgnorePointer(
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 95, sigmaY: 95),
+              filter: ImageFilter.blur(sigmaX: 75, sigmaY: 75),
               child: Container(color: Colors.transparent),
             ),
           ),
