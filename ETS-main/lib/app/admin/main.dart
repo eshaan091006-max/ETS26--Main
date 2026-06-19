@@ -9,6 +9,7 @@ import 'package:malhar_ets/constants/supabase/credentials.dart';
 import 'package:malhar_ets/shared/pages/home.dart';
 import 'package:malhar_ets/app/admin/modals/contingent_modal.dart';
 import 'package:malhar_ets/app/admin/modals/event_modal.dart';
+import 'package:malhar_ets/app/admin/analytics/analytics_page.dart';
 import 'package:malhar_ets/app/admin/participation/participation_management_page.dart';
 import 'package:malhar_ets/constants/app_bar.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
@@ -67,43 +68,43 @@ class _MainState extends State<Main> {
       Home(contingent: null),
       (widget.isVolunteer)
           ? Stack(
-            children: [
-              // ✅ Render the actual ContingentManagementPage behind
-              ContingentManagementPage(),
+              children: [
+                // ✅ Render the actual ContingentManagementPage behind
+                ContingentManagementPage(),
 
-              // ✅ Apply blur over it
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                child: Container(
-                  color: Colors.black.withAlpha(76), // Optional dim
-                ),
-              ),
-
-              // ✅ Overlay text on top
-              Center(
-                child: Text(
-                  'Arshia Said Not Allowed!! 😠',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 8,
-                        color: Colors.black.withAlpha(151),
-                        offset: Offset(2, 2),
-                      ),
-                    ],
+                // ✅ Apply blur over it
+                BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                  child: Container(
+                    color: Colors.black.withAlpha(76), // Optional dim
                   ),
                 ),
-              ),
-            ],
-          )
-          : ContingentManagementPage(),
 
+                // ✅ Overlay text on top
+                Center(
+                  child: Text(
+                    'Arshia Said Not Allowed!! 😠',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 8,
+                          color: Colors.black.withAlpha(151),
+                          offset: Offset(2, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : ContingentManagementPage(),
       EventManagementPage(),
       ParticipationManagementPage(),
+      const AnalyticsPage(),
     ]);
     PageRefreshController.onRefresh = loadData;
     super.initState();
@@ -150,23 +151,24 @@ class _MainState extends State<Main> {
     Icons.group,
     Icons.event,
     Icons.how_to_vote,
+    Icons.insights,
   ];
 
-  final labelList = <String>['Home', 'Contingent', 'Event', 'Participation'];
+  final labelList = <String>['Home', 'Contingent', 'Event', 'Participation', 'Analytics'];
 
   @override
   Widget build(BuildContext context) {
     List<VoidCallback> actionList = [
-      () {
-        //Null Function
-      },
-      // () => AppFeedback.showInfo(context, 'Adding Contingent..'),
+      // Home (no FAB action)
+      () {},
+      // Contingent
       () => showContingentModal(
         context,
         onSubmit: (Contingent c) async {
           await ContingentController().createContingent(context, c);
         },
       ),
+      // Event
       () => showEventModal(
         context,
         onSubmit: (Event e, List<FormLink> links) async {
@@ -181,11 +183,11 @@ class _MainState extends State<Main> {
           }
         },
       ),
-      () {
-        //Null Function
-      },
-    ];
-    return AmbientGlowBackground(
+      // Participation (no FAB action)
+      () {},
+      // Analytics (no FAB action)
+      () {},
+    ];return AmbientGlowBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         key: navigatorKey,
@@ -208,7 +210,7 @@ class _MainState extends State<Main> {
           },
           child: KeyedSubtree(
             key: ValueKey<int>(_currentIndex),
-            child: _pages[_currentIndex],
+              child: _pages.isNotEmpty ? _pages[_currentIndex.clamp(0, _pages.length - 1)] : const SizedBox.shrink(),
           ),
         ),
       floatingActionButton: FloatingActionButton(
@@ -320,6 +322,7 @@ class _MainState extends State<Main> {
                   const SizedBox(width: 48), // FAB spacing gap
                   _buildNavItem(2),
                   _buildNavItem(3),
+                  _buildNavItem(4),
                 ],
               ),
             ),

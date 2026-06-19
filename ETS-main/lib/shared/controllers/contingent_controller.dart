@@ -8,6 +8,8 @@ import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:malhar_ets/utils/cache_manager.dart';
+import 'package:malhar_ets/utils/session_manager.dart';
+import 'package:malhar_ets/utils/sync_manager.dart';
 
 class ContingentController {
   static final SupabaseClient _client = Supabase.instance.client;
@@ -44,8 +46,16 @@ class ContingentController {
       _contingents.addAll(
         response.map((json) => Contingent.fromJson(Map<String, dynamic>.from(json))).toList(),
       );
-      // Save to cache
-      await CacheManager.cacheData(CacheManager.keyContingents, contingentToJson(_contingents));
+      // Save to cache – scope based on session
+      final session = await SessionManager.getSession();
+      if (session != null && session['type'] == 'contingent') {
+        final Contingent current = session['contingent'] as Contingent;
+        final List<Contingent> scoped = _contingents.where((c) => c.contingentId == current.contingentId).toList();
+        await CacheManager.cacheData(CacheManager.keyContingents, contingentToJson(scoped));
+      } else {
+        // admin or unknown – cache everything
+        await CacheManager.cacheData(CacheManager.keyContingents, contingentToJson(_contingents));
+      }
     } catch (e) {
       print("Error loading contingents: $e");
     } finally {
@@ -153,8 +163,18 @@ class ContingentController {
         return false;
       }
     } catch (e) {
-      AppFeedback.showError(context, "Error updating contingent: $e");
-      return false;
+      await SyncManager.addToQueue('contingents', 'update', contingent.toJson());
+      
+      final index = _contingents.indexWhere((c) => c.contingentId == contingent.contingentId);
+      if (index != -1) {
+        _contingents[index] = contingent;
+      } else {
+        _contingents.add(contingent);
+      }
+      PageRefreshController.triggerRefresh();
+
+      AppFeedback.showSuccess(context, "Saved offline. Will sync when connected.");
+      return true;
     }
   }
 

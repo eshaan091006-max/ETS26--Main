@@ -10,6 +10,7 @@ import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/utils/session_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:malhar_ets/utils/cache_manager.dart';
+import 'package:malhar_ets/utils/sync_manager.dart';
 import 'dart:async';
 
 class ParticipationController {
@@ -229,10 +230,20 @@ class ParticipationController {
         return false;
       }
     } catch (e) {
-      if (displayMsg) {
-        AppFeedback.showError(context, "Error updating participation: $e");
+      await SyncManager.addToQueue('participations', 'update', participation.toJson());
+      
+      final index = _participations.indexWhere((p) => p.participationId == participation.participationId);
+      if (index != -1) {
+        _participations[index] = participation;
+      } else {
+        _participations.add(participation);
       }
-      return false;
+      PageRefreshController.triggerRefresh();
+
+      if (displayMsg) {
+        AppFeedback.showSuccess(context, "Saved offline. Will sync when connected.");
+      }
+      return true;
     }
   }
 

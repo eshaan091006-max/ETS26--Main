@@ -10,6 +10,7 @@ import 'package:malhar_ets/shared/models/participation.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:malhar_ets/utils/cache_manager.dart';
+import 'package:malhar_ets/utils/sync_manager.dart';
 
 class EventController {
   static final SupabaseClient _client = Supabase.instance.client;
@@ -154,8 +155,19 @@ class EventController {
         return false;
       }
     } catch (e) {
-      AppFeedback.showError(context, "Error updating event: $e");
-      return false;
+      await SyncManager.addToQueue('events', 'update', event.toJson());
+      
+      final index = _events.value.indexWhere((e) => e.eventId == event.eventId);
+      if (index != -1) {
+        _events.value[index] = event;
+      } else {
+        _events.value.add(event);
+      }
+      _events.notifyListeners();
+      PageRefreshController.triggerRefresh();
+
+      AppFeedback.showSuccess(context, "Saved offline. Will sync when connected.");
+      return true;
     }
   }
 
