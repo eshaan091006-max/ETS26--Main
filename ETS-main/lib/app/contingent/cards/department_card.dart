@@ -63,8 +63,9 @@ class DepartmentCard extends StatelessWidget {
         return NeonContainer(
           borderRadius: 35.0,
           padding: const EdgeInsets.all(20),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -98,6 +99,7 @@ class DepartmentCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
           ),
         );
       },
