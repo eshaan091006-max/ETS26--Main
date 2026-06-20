@@ -171,8 +171,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       children: [
                         // Pulsating Neon Glow Background
                         Container(
-                          width: 260 * glowScale,
-                          height: 260 * glowScale,
+                          width: 180 * glowScale,
+                          height: 180 * glowScale,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
@@ -190,8 +190,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   },
                   child: Image.asset(
                     'assets/logo/malhar26_logo.png',
-                    width: 300,
-                    height: 300,
+                    width: 220,
+                    height: 220,
                   ),
                 ),
               ],
