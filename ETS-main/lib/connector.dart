@@ -8,7 +8,6 @@ import 'package:malhar_ets/helpers/glass_container.dart';
 import 'package:malhar_ets/utils/session_manager.dart';
 import 'package:malhar_ets/app/admin/main.dart' as admin_main;
 import 'package:malhar_ets/app/contingent/main.dart' as contingent_main;
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:malhar_ets/helpers/page_transitions.dart';
 
 class Connector extends StatefulWidget {
@@ -89,8 +88,8 @@ class _ConnectorState extends State<Connector> {
                   ],
                 ),
                 child: ClipOval(
-                  child: SvgPicture.asset(
-                    'assets/logo/malhar26_logo.svg',
+                  child: Image.asset(
+                    'assets/logo/malhar26_logo.png',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -158,8 +157,8 @@ class _ConnectorState extends State<Connector> {
                         ],
                       ),
                       child: ClipOval(
-                        child: SvgPicture.asset(
-                          'assets/logo/malhar26_logo.svg',
+                        child: Image.asset(
+                          'assets/logo/malhar26_logo.png',
                           fit: BoxFit.cover,
                         ),
                       ),

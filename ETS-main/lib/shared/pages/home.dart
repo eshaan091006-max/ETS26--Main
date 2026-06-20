@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class Home extends StatefulWidget {
   final Contingent? contingent;
@@ -189,8 +188,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       ],
                     );
                   },
-                  child: SvgPicture.asset(
-                    'assets/logo/malhar26_logo.svg',
+                  child: Image.asset(
+                    'assets/logo/malhar26_logo.png',
                     width: 300,
                     height: 300,
                   ),
