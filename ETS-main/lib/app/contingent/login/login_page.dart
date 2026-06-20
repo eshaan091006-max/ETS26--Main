@@ -31,6 +31,7 @@ class _LoginPageState extends State<LoginPage> {
   final FocusNode _usernameFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
   bool _obscurePassword = true;
+  String? _lastError;
 
   @override
   void dispose() {
@@ -148,6 +149,9 @@ class _LoginPageState extends State<LoginPage> {
                                         );
                                       }
                                     } else {
+                                      setState(() {
+                                        _lastError = result['message'];
+                                      });
                                       AppFeedback.showError(
                                         context,
                                         result['message'],
@@ -156,6 +160,9 @@ class _LoginPageState extends State<LoginPage> {
                                   } catch (e) {
                                     if (!context.mounted) return;
                                     AppFeedback.hideLoading(context);
+                                    setState(() {
+                                      _lastError = e.toString();
+                                    });
                                     AppFeedback.showError(
                                       context,
                                       'An error occurred: $e',
@@ -181,6 +188,12 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     TextButton(
                       onPressed: () async {
+                        final String contingentCode = _usernameController.text.trim().isNotEmpty
+                            ? _usernameController.text.trim()
+                            : '[Contingent Code]';
+                        final String reason = _lastError ?? '[Error/Reason]';
+                        final String emailBody = '$contingentCode, is having trouble signing into the account.\nReason: $reason';
+
                         final Uri emailLaunchUri;
                         if (kIsWeb) {
                           emailLaunchUri = Uri(
@@ -192,14 +205,14 @@ class _LoginPageState extends State<LoginPage> {
                               'fs': '1',
                               'to': 'malhar.admin@xaviers.edu.in',
                               'su': 'Contingent Login Query',
-                              'body': 'Hey, I am having trouble Logging In.',
+                              'body': emailBody,
                             },
                           );
                         } else {
                           emailLaunchUri = Uri(
                             scheme: 'mailto',
                             path: 'malhar.admin@xaviers.edu.in',
-                            query: 'subject=Contingent%20Login%20Query&body=Hey%2C%20I%20am%20having%20trouble%20Logging%20In.',
+                            query: 'subject=Contingent%20Login%20Query&body=${Uri.encodeComponent(emailBody)}',
                           );
                         }
 
@@ -214,6 +227,12 @@ class _LoginPageState extends State<LoginPage> {
                         } catch (e) {
                           // Fallback: If mailto failed, try launching Gmail in the browser
                           if (emailLaunchUri.scheme == 'mailto') {
+                            final String contingentCode = _usernameController.text.trim().isNotEmpty
+                                ? _usernameController.text.trim()
+                                : '[Contingent Code]';
+                            final String reason = _lastError ?? '[Error/Reason]';
+                            final String emailBody = '$contingentCode, is having trouble signing into the account.\nReason: $reason';
+
                             final Uri gmailUri = Uri(
                               scheme: 'https',
                               host: 'mail.google.com',
@@ -223,7 +242,7 @@ class _LoginPageState extends State<LoginPage> {
                                 'fs': '1',
                                 'to': 'malhar.admin@xaviers.edu.in',
                                 'su': 'Contingent Login Query',
-                                'body': 'Hey, I am having trouble Logging In.',
+                                'body': emailBody,
                               },
                             );
                             try {
@@ -283,20 +302,26 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   ),
                                 ),
-                                TextButton(
-                                  onPressed: () async {
-                                    final Uri gmailUri = Uri(
-                                      scheme: 'https',
-                                      host: 'mail.google.com',
-                                      path: '/mail/',
-                                      queryParameters: {
-                                        'view': 'cm',
-                                        'fs': '1',
-                                        'to': 'malhar.admin@xaviers.edu.in',
-                                        'su': 'Contingent Login Query',
-                                        'body': 'Hey, I am having trouble Logging In.',
-                                      },
-                                    );
+                                 TextButton(
+                                   onPressed: () async {
+                                     final String contingentCode = _usernameController.text.trim().isNotEmpty
+                                         ? _usernameController.text.trim()
+                                         : '[Contingent Code]';
+                                     final String reason = _lastError ?? '[Error/Reason]';
+                                     final String emailBody = '$contingentCode, is having trouble signing into the account.\nReason: $reason';
+
+                                     final Uri gmailUri = Uri(
+                                       scheme: 'https',
+                                       host: 'mail.google.com',
+                                       path: '/mail/',
+                                       queryParameters: {
+                                         'view': 'cm',
+                                         'fs': '1',
+                                         'to': 'malhar.admin@xaviers.edu.in',
+                                         'su': 'Contingent Login Query',
+                                         'body': emailBody,
+                                       },
+                                     );
                                     Navigator.pop(context);
                                     try {
                                       await launchUrl(
