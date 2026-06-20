@@ -267,8 +267,9 @@ class _UpdateContingentSheetState extends State<UpdateContingentSheet> {
   void initState() {
     super.initState();
     _fields = List.generate(widget.participation.length, (index) {
+      final int originalMarks = widget.participation[index].marksScored;
       final controller = TextEditingController(
-        text: '${widget.participation[index].marksScored}',
+        text: '${originalMarks == -1 ? 0 : originalMarks}',
       );
       return controller;
     });

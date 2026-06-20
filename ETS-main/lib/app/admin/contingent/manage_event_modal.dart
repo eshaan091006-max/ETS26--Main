@@ -205,7 +205,12 @@ class _UpdateEventSheetState extends State<UpdateEventSheet> {
     super.initState();
     _fields = List.generate(
       widget.participation.length,
-      (index) => TextEditingController(text: '${widget.participation[index].marksScored}'),
+      (index) {
+        final int originalMarks = widget.participation[index].marksScored;
+        return TextEditingController(
+          text: '${originalMarks == -1 ? 0 : originalMarks}',
+        );
+      },
     );
   }
 
