@@ -9,19 +9,27 @@ class SessionManager {
   static const String _keyAdminIsVolunteer = 'admin_is_volunteer';
   static const String _keyContingentJson = 'contingent_json';
 
+  static const String _keyToken = 'session_token';
+
   // Save Admin Session
-  static Future<void> saveAdminSession(String username, bool isVolunteer) async {
+  static Future<void> saveAdminSession(String username, bool isVolunteer, [String? token]) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyUserType, 'admin');
     await prefs.setString(_keyAdminUsername, username);
     await prefs.setBool(_keyAdminIsVolunteer, isVolunteer);
+    if (token != null) {
+      await prefs.setString(_keyToken, token);
+    }
   }
 
   // Save Contingent Session
-  static Future<void> saveContingentSession(Contingent contingent) async {
+  static Future<void> saveContingentSession(Contingent contingent, [String? token]) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyUserType, 'contingent');
     await prefs.setString(_keyContingentJson, jsonEncode(contingent.toJson()));
+    if (token != null) {
+      await prefs.setString(_keyToken, token);
+    }
   }
 
   // Clear Session (Logout)
@@ -31,6 +39,7 @@ class SessionManager {
     await prefs.remove(_keyAdminUsername);
     await prefs.remove(_keyAdminIsVolunteer);
     await prefs.remove(_keyContingentJson);
+    await prefs.remove(_keyToken);
     
     // Clear Supabase session as well
     try {
@@ -38,6 +47,12 @@ class SessionManager {
     } catch (e) {
       // Ignored if not signed in
     }
+  }
+
+  // Get Token
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyToken);
   }
 
   // Get Session Details
@@ -71,5 +86,23 @@ class SessionManager {
       }
     }
     return null;
+  }
+
+  // Restore Custom JWT Session on Supabase Client
+  static Future<void> restoreCustomJWTSession(String token) async {
+    final sessionMap = {
+      'access_token': token,
+      'token_type': 'bearer',
+      'expires_in': 315360000, // 10 years in seconds
+      'refresh_token': 'dummy_refresh_token',
+      'user': {
+        'id': 'dummy_id',
+        'aud': 'authenticated',
+        'role': 'authenticated',
+        'created_at': DateTime.now().toIso8601String(),
+      }
+    };
+    final sessionJson = jsonEncode(sessionMap);
+    await Supabase.instance.client.auth.recoverSession(sessionJson);
   }
 }

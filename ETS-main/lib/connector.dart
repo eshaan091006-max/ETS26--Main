@@ -29,7 +29,15 @@ class _ConnectorState extends State<Connector> {
 
   Future<void> _checkActiveSession() async {
     final session = await SessionManager.getSession();
+    final token = await SessionManager.getToken();
     if (session != null) {
+      if (token != null && token.isNotEmpty) {
+        try {
+          await SessionManager.restoreCustomJWTSession(token);
+        } catch (e) {
+          debugPrint("Failed to restore Supabase session on startup: $e");
+        }
+      }
       if (mounted) {
         if (session['type'] == 'admin') {
           Navigator.of(context).pushReplacement(

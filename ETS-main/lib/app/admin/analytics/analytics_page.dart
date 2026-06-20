@@ -332,7 +332,46 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 
   Widget _buildAuditLogsView() {
-    final logs = AuditLogController().auditLogs;
+    final controller = AuditLogController();
+    final logs = controller.auditLogs;
+    final error = controller.errorMessage;
+
+    if (error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to Load Logs',
+                style: GoogleFonts.montserrat(color: AppColors.error, fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                error,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 12),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () => controller.loadAuditLogs(),
+                child: Text('Retry', style: GoogleFonts.montserrat(fontWeight: FontWeight.bold)),
+              )
+            ],
+          ),
+        ),
+      );
+    }
 
     if (logs.isEmpty) {
       return Center(

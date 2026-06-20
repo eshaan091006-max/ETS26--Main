@@ -16,20 +16,27 @@ class AuditLogController {
 
   List<AuditLog> get auditLogs => _auditLogs;
 
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
   Future<void> loadAuditLogs() async {
     try {
+      _errorMessage = null;
       final response = await Supabase.instance.client
           .from('audit_logs')
           .select("*")
           .order('created_at', ascending: false);
 
+      _auditLogs.clear();
       if (response.isNotEmpty) {
-        _auditLogs.clear();
         _auditLogs.addAll(
           response.map((json) => AuditLog.fromJson(json)).toList(),
         );
       }
     } catch (e) {
+      final currentSession = Supabase.instance.client.auth.currentSession;
+      final role = currentSession?.user.role;
+      _errorMessage = "$e\n(Session: ${currentSession != null ? 'Active' : 'Null'}, Role: $role)";
       print("Error loading audit logs: $e");
     } finally {
       PageRefreshController.triggerRefresh();

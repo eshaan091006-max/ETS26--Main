@@ -31,6 +31,9 @@ Future<void> main() async {
   await Supabase.initialize(
     url: SupabaseCredentials.url,
     publishableKey: SupabaseCredentials.anonKey,
+    authOptions: const FlutterAuthClientOptions(
+      persistSession: false,
+    ),
   );
   runApp(const Root());
 }

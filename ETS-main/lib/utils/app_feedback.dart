@@ -8,6 +8,7 @@ class AppFeedback {
     BuildContext context, {
     String message = 'Loading...',
   }) {
+    if (!context.mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -35,6 +36,7 @@ class AppFeedback {
 
   /// Hide loading dialog
   static void hideLoading(BuildContext context) {
+    if (!context.mounted) return;
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     }
@@ -74,6 +76,7 @@ class AppFeedback {
     Color bgColor, {
     SnackBarAction? action, // Optional action
   }) {
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(

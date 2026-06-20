@@ -1,5 +1,6 @@
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/utils/hash_util.dart';
+import 'package:malhar_ets/utils/session_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ContingentController {
@@ -22,13 +23,14 @@ class ContingentController {
         
         // Set the custom JWT session for Supabase
         if (contingentData.containsKey('token') && contingentData['token'] != null) {
-          await Supabase.instance.client.auth.setSession(contingentData['token']);
+          await SessionManager.restoreCustomJWTSession(contingentData['token']);
         }
 
         return {
           "success": true,
           "message": 'Contingent Login Successful for $username!',
           "contingent": Contingent.fromJson(contingentData),
+          "token": contingentData['token'],
         };
       } else {
         return {"success": false, "message": "Invalid Contingent Credentials!"};

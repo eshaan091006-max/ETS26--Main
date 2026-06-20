@@ -23,7 +23,7 @@ CREATE POLICY "Admins can view all audit logs"
   FOR SELECT
   TO authenticated
   USING (
-    coalesce(current_setting('request.jwt.claims', true)::jsonb ->> 'user_role', '') = 'admin'
+    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'user_role') = 'admin'
   );
 
 -- 4️⃣ Create trigger function to log changes

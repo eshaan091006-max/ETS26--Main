@@ -126,6 +126,7 @@ class _LoginPageState extends State<LoginPageAdmin> {
                                   await SessionManager.saveAdminSession(
                                     _usernameController.text,
                                     result['is_volunteer'] ?? false,
+                                    result['token'] ?? '',
                                   );
                                   if (context.mounted) {
                                     AppFeedback.showSuccess(

@@ -129,7 +129,10 @@ class _LoginPageState extends State<LoginPage> {
                                       // Finish autofill context if used
                                       TextInput.finishAutofillContext();
                                       final navigator = Navigator.of(context);
-                                      await SessionManager.saveContingentSession(result['contingent']);
+                                      await SessionManager.saveContingentSession(
+                                        result['contingent'],
+                                        result['token'] ?? '',
+                                      );
 
                                       if (context.mounted) {
                                         AppFeedback.showSuccess(

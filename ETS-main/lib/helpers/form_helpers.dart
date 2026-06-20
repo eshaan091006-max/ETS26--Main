@@ -22,12 +22,19 @@ Widget buildDropdown<T>({
 }) {
   return DropdownButtonFormField<T>(
     value: value,
+    isExpanded: true,
     dropdownColor: AppColors.tertiary,
     borderRadius: BorderRadius.circular(12),
     decoration: InputDecoration(labelText: label),
     items:
         items
-            .map((e) => DropdownMenuItem<T>(value: e, child: Text(getLabel(e))))
+            .map((e) => DropdownMenuItem<T>(
+                  value: e,
+                  child: Text(
+                    getLabel(e),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ))
             .toList(),
     onChanged: onChanged,
   );
