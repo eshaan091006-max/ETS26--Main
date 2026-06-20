@@ -135,7 +135,7 @@ BEGIN
         ) r;
 
         RETURN QUERY SELECT 
-            cont_record.contingent_id, 
+            cont_record.contingent_id::int, 
             cont_record.contingent_code::text, 
             cont_record.password::text, 
             cont_record.reset_count::int, 

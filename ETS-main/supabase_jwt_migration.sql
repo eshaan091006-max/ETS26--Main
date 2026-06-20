@@ -120,7 +120,7 @@ BEGIN
 
         -- Make sure these return columns match the RETURNS TABLE definition above exactly
         RETURN QUERY SELECT 
-            cont_record.contingent_id, 
+            cont_record.contingent_id::int, 
             cont_record.contingent_code::text, 
             cont_record.password::text, 
             cont_record.reset_count::int, 
