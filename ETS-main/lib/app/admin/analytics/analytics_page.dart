@@ -109,21 +109,36 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               backgroundColor: Colors.transparent,
               elevation: 0,
             ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _buildTabSelector(),
-                  if (_activeTab == 0) ...[
-                    _topContingentsChart(),
-                    const SizedBox(height: 24),
-                    _departmentParticipationChart(),
-                  ] else if (_activeTab == 1) ...[
-                    _buildLeaderboardView(),
-                  ] else ...[
-                    _buildAuditLogsView(),
+            body: RefreshIndicator(
+              color: AppColors.primary,
+              backgroundColor: AppColors.secondary,
+              onRefresh: () async {
+                await EventController().loadEvents();
+                await ParticipationController().loadParticipations();
+                await ContingentController().loadContingents();
+                await DepartmentController().loadDepartments();
+                await AuditLogController().loadAuditLogs();
+                if (mounted) {
+                  setState(() {});
+                }
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _buildTabSelector(),
+                    if (_activeTab == 0) ...[
+                      _topContingentsChart(),
+                      const SizedBox(height: 24),
+                      _departmentParticipationChart(),
+                    ] else if (_activeTab == 1) ...[
+                      _buildLeaderboardView(),
+                    ] else ...[
+                      _buildAuditLogsView(),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -392,104 +407,97 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       );
     }
 
-    return RefreshIndicator(
-      color: AppColors.primary,
-      backgroundColor: AppColors.secondary,
-      onRefresh: () async {
-        await AuditLogController().loadAuditLogs();
-      },
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: logs.length,
-        itemBuilder: (context, index) {
-          final log = logs[index];
-          final timestamp = DateFormat('dd MMM, hh:mm a').format(log.createdAt.toLocal());
-          final description = _formatLogDescription(log);
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: logs.length,
+      itemBuilder: (context, index) {
+        final log = logs[index];
+        final timestamp = DateFormat('dd MMM, hh:mm a').format(log.createdAt.toLocal());
+        final description = _formatLogDescription(log);
 
-          Color actionColor;
-          String actionText = log.action;
-          if (log.action == 'INSERT') {
-            actionColor = AppColors.success;
-          } else if (log.action == 'UPDATE') {
-            actionColor = AppColors.accent;
-          } else if (log.action == 'DELETE') {
-            actionColor = AppColors.error;
-          } else {
-            actionColor = AppColors.primary;
-          }
+        Color actionColor;
+        String actionText = log.action;
+        if (log.action == 'INSERT') {
+          actionColor = AppColors.success;
+        } else if (log.action == 'UPDATE') {
+          actionColor = AppColors.accent;
+        } else if (log.action == 'DELETE') {
+          actionColor = AppColors.error;
+        } else {
+          actionColor = AppColors.primary;
+        }
 
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.black.withAlpha(120),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppColors.primary.withAlpha(10),
-                width: 1.0,
-              ),
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.black.withAlpha(120),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.primary.withAlpha(10),
+              width: 1.0,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: actionColor.withAlpha(40),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: actionColor.withAlpha(120), width: 1),
-                      ),
-                      child: Text(
-                        actionText,
-                        style: GoogleFonts.montserrat(
-                          color: actionColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: actionColor.withAlpha(40),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: actionColor.withAlpha(120), width: 1),
                     ),
-                    Text(
-                      timestamp,
+                    child: Text(
+                      actionText,
                       style: GoogleFonts.montserrat(
-                        color: Colors.white38,
+                        color: actionColor,
+                        fontWeight: FontWeight.bold,
                         fontSize: 11,
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  description,
-                  style: GoogleFonts.montserrat(
-                    color: AppColors.textWhite,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
                   ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.person_outline, size: 14, color: Colors.white54),
-                    const SizedBox(width: 4),
-                    Text(
-                      'By: ${log.changedBy}',
-                      style: GoogleFonts.montserrat(
-                        color: Colors.white54,
-                        fontSize: 12,
-                      ),
+                  Text(
+                    timestamp,
+                    style: GoogleFonts.montserrat(
+                      color: Colors.white38,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                description,
+                style: GoogleFonts.montserrat(
+                  color: AppColors.textWhite,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
                 ),
-              ],
-            ),
-          );
-        },
-      ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.person_outline, size: 14, color: Colors.white54),
+                  const SizedBox(width: 4),
+                  Text(
+                    'By: ${log.changedBy}',
+                    style: GoogleFonts.montserrat(
+                      color: Colors.white54,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
