@@ -11,7 +11,7 @@ Future<void> main() async {
     url: SupabaseCredentials.url,
     publishableKey: SupabaseCredentials.anonKey,
     authOptions: const FlutterAuthClientOptions(
-      persistSession: false,
+      localStorage: EmptyLocalStorage(),
     ),
   );
   SyncManager.initialize();
