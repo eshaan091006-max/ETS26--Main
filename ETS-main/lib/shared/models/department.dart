@@ -15,10 +15,18 @@ class Department {
   Department({required this.id, required this.name, required this.code});
 
   factory Department.fromJson(Map<String, dynamic> json) {
+    String name = json['name'] ?? json['department_name'] ?? '';
+    String code = json['code'] ?? json['department_code'] ?? '';
+    if (name.toLowerCase() == 'local performing arts') {
+      name = 'Indian Performing Arts';
+    }
+    if (code.toUpperCase() == 'LPA') {
+      code = 'IPA';
+    }
     return Department(
       id: json['department_id'],
-      name: json['name'] ?? json['department_name'] ?? '',
-      code: json['code'] ?? json['department_code'] ?? '',
+      name: name,
+      code: code,
     );
   }
 

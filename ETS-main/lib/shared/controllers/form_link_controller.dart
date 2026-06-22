@@ -32,7 +32,7 @@ class FormLinkController {
 
     _formLinks.clear();
     _formLinks.addAll(response.map((json) => FormLink.fromJson(json)).toList());
-    // printAll();
+    PageRefreshController.triggerRefresh();
   }
 
   void subscribeToFormLinks(GlobalKey<NavigatorState> key) {

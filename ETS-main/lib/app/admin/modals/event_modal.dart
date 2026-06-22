@@ -9,6 +9,7 @@ import 'package:malhar_ets/shared/models/department.dart';
 import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/models/form_link.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
+import 'package:malhar_ets/utils/link_validator.dart';
 
 Future<void> showEventModal(
   BuildContext context, {
@@ -246,16 +247,39 @@ Future<void> showEventModal(
 
                     List<FormLink> finalLinks = [];
                     for (var c in linkControllers) {
-                      if (c['url']!.text.trim().isNotEmpty) {
+                      final url = c['url']!.text.trim();
+                      if (url.isNotEmpty) {
                         finalLinks.add(FormLink(
                           eventId: event?.eventId ?? 0,
                           label: c['label']!.text.trim(),
-                          link: c['url']!.text.trim(),
+                          link: url,
                           visibleTo: [],
                         ));
                       }
                     }
 
+                    // Validate links
+                    if (finalLinks.isNotEmpty) {
+                      AppFeedback.showLoading(context, message: 'Validating URLs...');
+                      for (var formLink in finalLinks) {
+                        final isValid = await LinkValidator.isValidWorkingLink(formLink.link);
+                        if (!isValid) {
+                          if (context.mounted) {
+                            AppFeedback.hideLoading(context);
+                            AppFeedback.showError(
+                              context,
+                              'The link "${formLink.link}" is not a working link or is unreachable. Please verify.',
+                            );
+                          }
+                          return;
+                        }
+                      }
+                      if (context.mounted) {
+                        AppFeedback.hideLoading(context);
+                      }
+                    }
+
+                    if (!context.mounted) return;
                     AppFeedback.showLoading(context, message: isUpdating ? 'Updating...' : 'Adding...');
                     final modalContext = context;
                     

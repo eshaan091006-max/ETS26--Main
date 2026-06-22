@@ -17,4 +17,4 @@ x86/
 !*.[Cc]ache/
 
 # Supabase credentials
-**/credentials.dart
+**/credentials.dart 

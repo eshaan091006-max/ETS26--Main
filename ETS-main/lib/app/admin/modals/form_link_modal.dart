@@ -6,6 +6,7 @@ import 'package:malhar_ets/utils/app_feedback.dart';
 import 'package:malhar_ets/shared/models/form_link.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/shared/controllers/contingent_controller.dart';
+import 'package:malhar_ets/utils/link_validator.dart';
 
 Future<void> showFormLinkModal(
   BuildContext context, {
@@ -206,11 +207,25 @@ Future<void> showFormLinkModal(
                   ),
                   ElevatedButton(
                     onPressed: () async {
+                      final url = linkController.text.trim();
                       if (labelController.text.trim().isEmpty ||
-                          linkController.text.trim().isEmpty) {
+                          url.isEmpty) {
                         AppFeedback.showError(
                           context,
                           'Label and URL are required',
+                        );
+                        return;
+                      }
+
+                      AppFeedback.showLoading(context, message: 'Validating URL...');
+                      final isValid = await LinkValidator.isValidWorkingLink(url);
+                      if (!context.mounted) return;
+                      AppFeedback.hideLoading(context);
+
+                      if (!isValid) {
+                        AppFeedback.showError(
+                          context,
+                          'The URL is not a working link or is unreachable. Please verify.',
                         );
                         return;
                       }
@@ -223,7 +238,7 @@ Future<void> showFormLinkModal(
                           id: formLink?.id ?? -1,
                           eventId: eventId,
                           label: labelController.text.trim(),
-                          link: linkController.text.trim(),
+                          link: url,
                           visibleTo: selectedContingents.toList(),
                         ),
                       );

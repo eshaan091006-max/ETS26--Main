@@ -17,6 +17,7 @@ Future<void> confirmDeletionModal(
                 title: const Text("Confirm Delete"),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('1. Make Sure You have Chosen the right $label.'),
                     const SizedBox(height: 12),

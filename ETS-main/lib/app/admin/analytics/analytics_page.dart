@@ -608,11 +608,14 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     }
 
     if (log.action == 'INSERT') {
-      final marks = data['marks_scored'] ?? 0;
+      final rawMarks = data['marks_scored'] ?? 0;
+      final marks = rawMarks == -1 ? 0 : rawMarks;
       return '$contingentCode registered for $eventName with score $marks';
     } else if (log.action == 'UPDATE') {
-      final oldMarks = log.oldData?['marks_scored'] ?? -1;
-      final newMarks = log.newData?['marks_scored'] ?? -1;
+      final rawOldMarks = log.oldData?['marks_scored'] ?? -1;
+      final rawNewMarks = log.newData?['marks_scored'] ?? -1;
+      final oldMarks = rawOldMarks == -1 ? 0 : rawOldMarks;
+      final newMarks = rawNewMarks == -1 ? 0 : rawNewMarks;
       if (oldMarks != newMarks) {
         return '$contingentCode score in $eventName changed from $oldMarks to $newMarks';
       }
