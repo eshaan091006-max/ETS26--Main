@@ -113,9 +113,7 @@ class _EventCardState extends State<EventCard> {
             const Divider(color: AppColors.divider, thickness: 0.7),
             const SizedBox(height: 10),
 
-            /// Event Details
             _buildDetailRow("Department", deptName),
-            _buildDetailRow("Date & Time", dateStr),
             _buildDetailRow(
               "Highest Marks",
               event.highestMarks == -1

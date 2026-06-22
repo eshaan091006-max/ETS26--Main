@@ -29,6 +29,22 @@ class _DepartmentsPageState extends State<DepartmentsPage> {
             .departments
             .toList();
 
+        final List<String> customOrder = [
+          'fine arts',
+          'literary arts',
+          'indian performing arts',
+          'world performing arts',
+          'entertainment, theatricals, contests and workshops',
+        ];
+
+        departments.sort((a, b) {
+          int indexA = customOrder.indexOf(a.name.toLowerCase().trim());
+          int indexB = customOrder.indexOf(b.name.toLowerCase().trim());
+          if (indexA == -1) indexA = 999;
+          if (indexB == -1) indexB = 999;
+          return indexA.compareTo(indexB);
+        });
+
         if (!PageRefreshController.initialLoadCompleted || departments.isEmpty) {
           return const ShimmerSkeletonList(
             itemCount: 3,

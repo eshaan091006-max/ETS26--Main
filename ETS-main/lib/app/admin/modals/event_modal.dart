@@ -60,7 +60,7 @@ Future<void> showEventModal(
         event?.departmentId ?? deptCont.departments.first.id,
       ) ??
       deptCont.departments.first;
-  DateTime selectedDate = event?.dateTime ?? DateTime.now();
+  DateTime selectedDate = event?.dateTime ?? DateTime(2006, 2, 10, 15, 43, 0);
   int eventType = event?.eventType ?? 0;
   int elimsType = event?.elimsType ?? 0;
 
@@ -98,49 +98,7 @@ Future<void> showEventModal(
                         });
                       },
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Date: ${DateFormat('dd MMM yyyy – hh:mm a').format(selectedDate)}',
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            final date = await showDatePicker(
-                              context: context,
-                              initialDate: selectedDate,
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                            );
-                            if (date != null && context.mounted) {
-                              final time = await showTimePicker(
-                                context: context,
-                                initialTime: TimeOfDay.fromDateTime(selectedDate),
-                              );
-                              if (time != null) {
-                                setState(() {
-                                  selectedDate = DateTime(
-                                    date.year,
-                                    date.month,
-                                    date.day,
-                                    time.hour,
-                                    time.minute,
-                                  );
-                                });
-                              }
-                            }
-                          },
-                          icon: const Icon(Icons.calendar_today),
-                          color: AppColors.accent,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
+
                     
                     // Links Section
                     Column(

@@ -71,26 +71,7 @@ class EventCard extends StatelessWidget {
 
             const SizedBox(height: 6),
 
-            /// Date and time
-            Row(
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  size: 16,
-                  color: isFlagship ? Colors.white70 : Colors.black54,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  "${event.dateString} / ${event.timeString}",
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: Colors.white70,
-                  ),
-                ),
-              ],
-            ),
 
-            const SizedBox(height: 6),
 
             /// Format / Elims format
             Row(
