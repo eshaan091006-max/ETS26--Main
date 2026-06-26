@@ -32,9 +32,151 @@
 
   <title>Malhar 26</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- =====================================================
+       SCREENSHOT PROTECTION
+       Blocks Print Screen, Win+Shift+S (Snipping Tool),
+       Ctrl+P (print), and print media queries.
+       Similar to Netflix's content protection approach.
+  ====================================================== -->
+  <style>
+    /* Block all print output — Print Screen on many browsers
+       captures what would be printed, so this blacks it out */
+    @media print {
+      html, body, * {
+        display: none !important;
+        visibility: hidden !important;
+        background: #000 !important;
+        color: #000 !important;
+      }
+    }
+
+    /* Prevent text/image selection across the entire page */
+    html, body {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      /* Disable drag-and-drop of images */
+      -webkit-user-drag: none;
+    }
+
+    /* Screenshot blackout overlay — shown on key detection */
+    #__screenshot-shield {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647; /* max z-index */
+      background: #000;
+      pointer-events: none;
+    }
+  </style>
 </head>
 
 <body>
+  <!-- Screenshot shield overlay -->
+  <div id="__screenshot-shield" aria-hidden="true"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var shield = document.getElementById('__screenshot-shield');
+      var BLACKOUT_MS = 2000; // how long to black screen after detection
+      var _timer = null;
+
+      function showShield() {
+        shield.style.display = 'block';
+        clearTimeout(_timer);
+        _timer = setTimeout(hideShield, BLACKOUT_MS);
+      }
+
+      function hideShield() {
+        shield.style.display = 'none';
+      }
+
+      // ── Key-based detection ──────────────────────────────────────
+      document.addEventListener('keydown', function (e) {
+        var key = e.key || '';
+        var code = e.code || '';
+
+        // PrintScreen key
+        if (key === 'PrintScreen' || code === 'PrintScreen') {
+          e.preventDefault();
+          showShield();
+          return;
+        }
+
+        // Win+Shift+S  (Windows Snipping Tool)
+        if (e.metaKey && e.shiftKey && (key === 's' || key === 'S')) {
+          e.preventDefault();
+          showShield();
+          return;
+        }
+
+        // Ctrl+Shift+S (some capture tools)
+        if (e.ctrlKey && e.shiftKey && (key === 's' || key === 'S')) {
+          e.preventDefault();
+          showShield();
+          return;
+        }
+
+        // Ctrl+P — print dialog (another capture path)
+        if (e.ctrlKey && (key === 'p' || key === 'P')) {
+          e.preventDefault();
+          showShield();
+          return;
+        }
+
+        // F12 — block DevTools to discourage element inspection / canvas capture
+        if (key === 'F12' || code === 'F12') {
+          e.preventDefault();
+          return;
+        }
+      }, true /* capture phase */);
+
+      // ── Clipboard poisoning on PrintScreen (keyup) ───────────────
+      // PrintScreen fires after keyup; overwrite clipboard immediately.
+      document.addEventListener('keyup', function (e) {
+        if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
+          // Write a black pixel as a data URL to the clipboard
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText('').catch(function () {});
+          }
+          showShield();
+        }
+      }, true);
+
+      // ── Right-click disable ──────────────────────────────────────
+      document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+      }, true);
+
+      // ── Drag disable ─────────────────────────────────────────────
+      document.addEventListener('dragstart', function (e) {
+        e.preventDefault();
+      }, true);
+
+      // ── visibilitychange / blur ──────────────────────────────────
+      // When the user tabs away (common before using a capture tool)
+      // briefly show shield so partial-screen tools capture nothing.
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+          showShield();
+        } else {
+          // Give a short delay then hide, so returning users see content
+          setTimeout(hideShield, 300);
+        }
+      });
+
+      // ── Detect beforeprint event ─────────────────────────────────
+      window.addEventListener('beforeprint', function () {
+        showShield();
+      });
+
+    })();
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 
