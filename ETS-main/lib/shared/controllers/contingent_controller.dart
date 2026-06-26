@@ -113,6 +113,19 @@ class ContingentController {
   ) async {
     try {
       await loadContingents();
+
+      // 🔐 Duplicate password check — no two contingents may share the same password
+      final duplicatePassword = _contingents.any(
+        (c) => c.password == contingent.password,
+      );
+      if (duplicatePassword) {
+        AppFeedback.showError(
+          context,
+          '🔴 Data Breached — Password already exists in our database. Choose a unique password.',
+        );
+        return false;
+      }
+
       int nextId = 1;
       if (_contingents.isNotEmpty) {
         nextId = _contingents.map((c) => c.contingentId).reduce((a, b) => a > b ? a : b) + 1;

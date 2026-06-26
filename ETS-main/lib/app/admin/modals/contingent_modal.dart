@@ -41,7 +41,7 @@ Future<void> showContingentModal(
                         controller: passwordController,
                         obscureText: obscure,
                         decoration: InputDecoration(
-                          labelText: 'Initial Password (leave blank for code)',
+                          labelText: 'Initial Password (leave blank for contingent code)',
                           suffixIcon: IconButton(
                             icon: Icon(
                               obscure ? Icons.visibility_off : Icons.visibility,
@@ -76,7 +76,7 @@ Future<void> showContingentModal(
   
                       AppFeedback.showLoading(context, message: isUpdating ? 'Updating...' : 'Adding...');
                       final modalContext = context;
-                      await onSubmit(
+                      final dynamic result = await onSubmit(
                         Contingent(
                           contingentId: contingent?.contingentId ?? 0,
                           contingentCode: codeController.text.trim(),
@@ -87,7 +87,9 @@ Future<void> showContingentModal(
                       
                       if (modalContext.mounted) {
                         AppFeedback.hideLoading(modalContext);
-                        Navigator.pop(modalContext);
+                        // Only close the modal if the operation succeeded
+                        final bool success = result is bool ? result : true;
+                        if (success) Navigator.pop(modalContext);
                       }
                     },
                     child: Text(isUpdating ? 'Update' : 'Add'),
